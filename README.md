@@ -27,3 +27,7 @@ make test # run go tests
 # a chat message.
 make run API_KEY=...
 ```
+
+## Releases
+
+- 1.0.0 Initial Release
