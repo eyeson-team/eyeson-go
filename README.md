@@ -1,9 +1,10 @@
-![eyeson ninja gopher](eyeson_go_ninja.png)
 
 # eyeson go library
 
 A golang client for the [eyeson video conferencing
 API](https://eyeson-team.github.io/api/api-reference/).
+
+![eyeson ninja gopher](eyeson_go_ninja.png)
 
 ## Usage
 
