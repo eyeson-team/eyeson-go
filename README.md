@@ -1,3 +1,4 @@
+![eyeson ninja gopher](eyeson_go_ninja.png)
 
 # eyeson go library
 
