@@ -11,7 +11,7 @@ const WEBHOOK_RECORDING string = "recording_update"
 type WebhookDetails struct {
 	Id                string    `json:"id"`
 	Url               string    `json:"url"`
-	Types             string    `json:"types"`
+	Types             []string  `json:"types"`
 	LastRequestSentAt time.Time `json:"last_request_sent_at"`
 	LastResponseCode  string    `json:"last_response_code"`
 }

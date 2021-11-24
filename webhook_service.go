@@ -1,6 +1,8 @@
 package eyeson
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 )
@@ -18,7 +20,10 @@ func (srv *WebhookService) Register(endpoint, types string) error {
 		return err
 	}
 
-	_, err = srv.client.Do(req, nil)
+	res, err := srv.client.Do(req, nil)
+	if res.StatusCode != http.StatusCreated {
+		return errors.New(fmt.Sprintf("Bad API status code 201, got %d", res.StatusCode))
+	}
 	return err
 }
 
@@ -29,9 +34,15 @@ func (srv *WebhookService) Get() (*WebhookDetails, error) {
 		return nil, err
 	}
 
-	var details *WebhookDetails
-	_, err = srv.client.Do(req, &details)
-	return details, err
+	var details WebhookDetails
+	res, err := srv.client.Do(req, &details)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("Bad API status code 200, got %d", res.StatusCode))
+	}
+	return &details, err
 }
 
 // Unregister will clear the current webhook.
@@ -45,6 +56,13 @@ func (srv *WebhookService) Unregister() error {
 		return err
 	}
 
-	_, err = srv.client.Do(req, nil)
-	return err
+	srv.client.Do(req, nil)
+	// res, err := srv.client.Do(req, nil)
+	// if err != nil {
+	// 	return err
+	// }
+	// if res.StatusCode != http.StatusNoContent {
+	// 	return errors.New(fmt.Sprintf("Bad API status code 204, got %d", res.StatusCode))
+	// }
+	return nil
 }

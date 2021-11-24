@@ -28,8 +28,9 @@ make test # run go tests
 # run an example program that starts a meeting, adds an overlay and sends
 # a chat message.
 API_KEY=... go run examples/meeting.go
-# run an example program that listens for webhooks.
-API_KEY=... go run examples/webhook-listener.go
+# run an example program that listens for webhooks. please ensure the endpoint
+# is public available.
+API_KEY=... go run examples/webhook-listener.go <endpoint-url>
 ```
 
 ## Releases
