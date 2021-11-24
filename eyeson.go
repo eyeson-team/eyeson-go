@@ -25,8 +25,9 @@ type Client struct {
 	apiKey  string
 	BaseURL *url.URL
 
-	client *http.Client
-	Rooms  *RoomsService
+	client  *http.Client
+	Rooms   *RoomsService
+	Webhook *WebhookService
 }
 
 type service struct {
@@ -38,6 +39,7 @@ func NewClient(key string) *Client {
 	baseURL, _ := url.Parse(endpoint)
 	c := &Client{apiKey: key, BaseURL: baseURL, client: http.DefaultClient}
 	c.Rooms = &RoomsService{c}
+	c.Webhook = &WebhookService{c}
 	return c
 }
 

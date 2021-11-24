@@ -27,9 +27,12 @@ err = room.Chat("Welcome!")
 make test # run go tests
 # run an example program that starts a meeting, adds an overlay and sends
 # a chat message.
-make run API_KEY=...
+API_KEY=... go run examples/meeting.go
+# run an example program that listens for webhooks.
+API_KEY=... go run examples/webhook-listener.go
 ```
 
 ## Releases
 
+- 1.1.0 Add Webhook Handling
 - 1.0.0 Initial Release
