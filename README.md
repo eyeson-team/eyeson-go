@@ -35,6 +35,7 @@ API_KEY=... go run examples/webhook-listener.go <endpoint-url>
 
 ## Releases
 
-- 1.1.1 Add Shutdown, Fix Webhook Response Validation
-- 1.1.0 Add Webhook Handling
-- 1.0.0 Initial Release
+- master Add Webhook signature
+-  1.1.1 Add Shutdown, Fix Webhook Response Validation
+-  1.1.0 Add Webhook Handling
+-  1.0.0 Initial Release

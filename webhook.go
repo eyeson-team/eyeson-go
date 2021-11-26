@@ -1,6 +1,13 @@
 package eyeson
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -33,4 +40,21 @@ type Webhook struct {
 		StartedAt time.Time `json:"started_at"`
 		Shutdown  bool      `json:"shutdown"`
 	} `json:"room"`
+}
+
+func NewWebhook(apiKey string, r *http.Request) (*Webhook, error) {
+	var webhook Webhook
+	raw, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	h := hmac.New(sha256.New, []byte(apiKey))
+	h.Write(raw)
+	if hex.EncodeToString(h.Sum(nil)) != r.Header.Get("X-Eyeson-Signature") {
+		return nil, errors.New("Webhook signature does not match")
+	}
+	if err = json.Unmarshal(raw, &webhook); err != nil {
+		return nil, err
+	}
+	return &webhook, nil
 }

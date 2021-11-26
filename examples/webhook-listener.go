@@ -18,8 +18,9 @@ func main() {
 	flag.Parse()
 
 	url := os.Args[len(os.Args)-1]
+	apiKey := os.Getenv("API_KEY")
 
-	client := eyeson.NewClient(os.Getenv("API_KEY"))
+	client := eyeson.NewClient(apiKey)
 	fmt.Println("Register webhook for endpoint", url)
 	err := client.Webhook.Register(url, eyeson.WEBHOOK_ROOM)
 	if err != nil {
@@ -28,13 +29,15 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		var data eyeson.Webhook
-		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		data, err := eyeson.NewWebhook(apiKey, r)
+		if err != nil {
 			log.Println("Could not parse request: ", err)
+			return
 		}
 		log.Println("Received new webhook for Room", data.Room.Name)
-		if err := logRoomUpdate(&data); err != nil {
+		if err := logRoomUpdate(data); err != nil {
 			log.Println("Could not store data,", err)
+			return
 		}
 		w.WriteHeader(204)
 	})
