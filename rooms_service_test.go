@@ -27,3 +27,18 @@ func TestRoomsService_Join(t *testing.T) {
 		t.Errorf("RoomsService Join body = %v, want %v", room, want)
 	}
 }
+
+func TestRoomsService_Shutdown(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/rooms/seven", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		w.WriteHeader(204)
+	})
+
+	err := client.Rooms.Shutdown("seven")
+	if err != nil {
+		t.Errorf("RoomsService Shutdown not successfull, got %v", err)
+	}
+}

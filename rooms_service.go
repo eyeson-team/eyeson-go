@@ -28,8 +28,21 @@ func (srv *RoomsService) Join(id string, user string, options map[string]string)
 	}
 
 	var room *RoomResponse
-	if _, err := srv.client.Do(req, &room); err != nil {
+	if _, err = srv.client.Do(req, &room); err != nil {
 		return nil, err
 	}
 	return &UserService{Data: room, client: srv.client.UserClient()}, nil
+}
+
+// Shutdown force stops a running meeting.
+func (srv *RoomsService) Shutdown(id string) error {
+	req, err := srv.client.NewRequest(http.MethodDelete, "/rooms/"+id, nil)
+	if err != nil {
+		return err
+	}
+	_, err = srv.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }

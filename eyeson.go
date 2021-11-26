@@ -100,7 +100,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 func validateResponse(resp *http.Response) error {
 	c := resp.StatusCode
 	switch {
-	case c == 200 || c == 201:
+	case c == 200 || c == 201 || c == 204:
 		return nil
 	case c == 404:
 		return errors.New("Not found! Resource does not exist or expired.")
