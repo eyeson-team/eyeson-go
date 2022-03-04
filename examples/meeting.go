@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Join the room at %q", room.Data.Links.GuestJoin)
+	fmt.Print("Join the room at %q", room.Data.Links.GuestJoin)
 
 	setLogo(room)
 }

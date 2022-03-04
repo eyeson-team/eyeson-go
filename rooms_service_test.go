@@ -28,6 +28,27 @@ func TestRoomsService_Join(t *testing.T) {
 	}
 }
 
+func TestRoomsService_GuestJoin(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/guests/guest-token", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testFormValues(t, r, values{"name": "guest@eyeson.team"})
+		fmt.Fprint(w, `{"access_key":"token","links":{"gui": "https://app.eyeson.team/?token"}}`)
+	})
+
+	room, err := client.Rooms.GuestJoin("guest-token", "", "guest@eyeson.team", "")
+	if err != nil {
+		t.Errorf("RoomsService GuestJoin not successfull, got %v", err)
+	}
+
+	want := &RoomResponse{AccessKey: "token", Links: RoomLinks{Gui: "https://app.eyeson.team/?token"}}
+	if !reflect.DeepEqual(room.Data, want) {
+		t.Errorf("RoomsService GuestJoin body = %v, want %v", room, want)
+	}
+}
+
 func TestRoomsService_Shutdown(t *testing.T) {
 	client, mux, _, teardown := setup()
 	defer teardown()
