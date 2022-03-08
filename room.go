@@ -7,6 +7,90 @@ type RoomResponse struct {
 	Room      Room      `json:"room"`
 	User      User      `json:"user"`
 	Ready     bool      `json:"ready"`
+	Signaling Signaling `json:"signaling"`
+}
+
+// Signaling base container for signaling options.
+// So far only type "sepp" is allowed.
+type Signaling struct {
+	Type    string        `json:"type"`
+	SigSepp SeppSignaling `json:"options"`
+}
+
+// SeppSignaling holds information required by the
+// gosepp signaling interface.
+type SeppSignaling struct {
+	ClientID    string       `json:"client_id"`
+	AuthToken   string       `json:"auth_token"`
+	ConfID      string       `json:"conf_id"`
+	Endpoint    string       `json:"endpoint"`
+	StunServers []string     `json:"stun_servers"`
+	TurnServer  []TurnServer `json:"turn_servers"`
+}
+
+// GetSigEndpoint returns the signaling endpoint
+func (rr *RoomResponse) GetSigEndpoint() string {
+	return rr.Signaling.SigSepp.Endpoint
+}
+
+// GetAuthToken returns the JWT-Authtoken for
+// authenticating to the sig-service.
+func (rr *RoomResponse) GetAuthToken() string {
+	return rr.Signaling.SigSepp.AuthToken
+}
+
+// GetClientID returns the client-id of this
+// signaling entity.
+func (rr *RoomResponse) GetClientID() string {
+	return rr.Signaling.SigSepp.ClientID
+}
+
+// GetConfID returns the conf-id to connect to.
+func (rr *RoomResponse) GetConfID() string {
+	return rr.Signaling.SigSepp.ConfID
+}
+
+// GetStunServers returns stun info
+func (rr *RoomResponse) GetStunServers() []string {
+	return rr.Signaling.SigSepp.StunServers
+}
+
+// GetTurnServerURLs returns turn info
+func (rr *RoomResponse) GetTurnServerURLs() []string {
+	sepp := rr.Signaling.SigSepp
+	if len(sepp.TurnServer) > 0 {
+		return sepp.TurnServer[0].URLs
+	}
+	return []string{}
+}
+
+// GetTurnServerPassword returns turn credentials
+func (rr *RoomResponse) GetTurnServerPassword() string {
+	sepp := rr.Signaling.SigSepp
+	if len(sepp.TurnServer) > 0 {
+		return sepp.TurnServer[0].Password
+	}
+	return ""
+}
+
+// GetTurnServerUsername return turn credentials
+func (rr *RoomResponse) GetTurnServerUsername() string {
+	sepp := rr.Signaling.SigSepp
+	if len(sepp.TurnServer) > 0 {
+		return sepp.TurnServer[0].Username
+	}
+	return ""
+}
+
+func (rr *RoomResponse) GetDisplayname() string {
+	return rr.User.Name
+}
+
+// TurnServer provides connection info for ICE-Servers
+type TurnServer struct {
+	URLs     []string `json:"urls"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
 }
 
 // Room has attributes for SIP details and GuestToken
