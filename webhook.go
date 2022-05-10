@@ -33,6 +33,9 @@ type Webhook struct {
 		Links     struct {
 			Download string `json:"download"`
 		} `json:"links"`
+		Room struct {
+			Id string `json:"id"`
+		}
 	} `json:"recording,omitempty"`
 	Room struct {
 		Id        string    `json:"id"`

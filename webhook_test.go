@@ -44,4 +44,7 @@ func TestWebhookUnmarshalRecording(t *testing.T) {
 	if webhook.Recording.Duration != 2 {
 		t.Errorf("Expected recording duration of two seconds, got %v", webhook.Recording.Duration)
 	}
+	if webhook.Recording.Room.Id != "demo" {
+		t.Errorf("Expected room identifier demo, got %v", webhook.Recording.Room.Id)
+	}
 }
