@@ -13,6 +13,7 @@ import (
 
 const WEBHOOK_ROOM string = "room_update"
 const WEBHOOK_RECORDING string = "recording_update"
+const WEBHOOK_SNAPSHOT string = "snapshot_update"
 
 // WebhookDetails provide configuration details.
 type WebhookDetails struct {
@@ -43,6 +44,17 @@ type Webhook struct {
 		StartedAt time.Time `json:"started_at"`
 		Shutdown  bool      `json:"shutdown"`
 	} `json:"room"`
+	Snapshot struct {
+		Id        string    `json:"id"`
+		Name      string    `json:"name"`
+		CreatedAt time.Time `json:"created_at"`
+		Links     struct {
+			Download string `json:"download"`
+		} `json:"links"`
+		Room struct {
+			Id string `json:"id"`
+		}
+	} `json:"snapshot,omitempty"`
 }
 
 func NewWebhook(apiKey string, r *http.Request) (*Webhook, error) {
