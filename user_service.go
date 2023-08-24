@@ -19,7 +19,7 @@ const Background int = -1
 // Foreground provides the z-index to represent a foreground image.
 const Foreground int = 1
 
-// RoomsService provides method Join to start and join a room.
+// UserService provides methods a user can perform.
 type UserService struct {
 	client *Client
 	Data   *RoomResponse
@@ -41,7 +41,7 @@ func (u *UserService) WaitReady() error {
 				break
 			}
 			if u.Data.Room.Shutdown {
-				res <- errors.New("Meeting has been shutdown.")
+				res <- errors.New("Meeting has been shutdown")
 				break
 			}
 		}
@@ -117,9 +117,9 @@ func (u *UserService) StopRecording() error {
 
 // StartBroadcast starts a broadcast to the given stream url given by a
 // streaming service like YouTube, Vimeo, and others.
-func (u *UserService) StartBroadcast(streamUrl string) error {
+func (u *UserService) StartBroadcast(streamURL string) error {
 	data := url.Values{}
-	data.Set("stream_url", streamUrl)
+	data.Set("stream_url", streamURL)
 	path := "/rooms/" + u.Data.AccessKey + "/broadcasts"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
 	if err != nil {
@@ -158,8 +158,8 @@ func (u *UserService) SetLayout(layout string, users []string, voiceActivation, 
 	} else {
 		data.Set("layout", "auto")
 	}
-	for i, userId := range users {
-		data.Set("users["+strconv.Itoa(i)+"]", userId)
+	for i, userID := range users {
+		data.Set("users["+strconv.Itoa(i)+"]", userID)
 	}
 	if voiceActivation {
 		data.Set("voice_activation", "true")
@@ -186,9 +186,9 @@ func (u *UserService) SetLayout(layout string, users []string, voiceActivation, 
 // SetLayer sets a layer image using the given public available URL pointing to
 // an image file. The z-index should be set using the constants Foreground or
 // Background.
-func (u *UserService) SetLayer(imgUrl string, zIndex int) error {
+func (u *UserService) SetLayer(imgURL string, zIndex int) error {
 	data := url.Values{}
-	data.Set("url", imgUrl)
+	data.Set("url", imgURL)
 	if zIndex == 1 {
 		data.Set("z-index", "1")
 	} else {
@@ -229,10 +229,10 @@ func (u *UserService) ClearLayer(zIndex int) error {
 // StartPlayback starts a playback using the given public available URL to a
 // video file. The given user id marks the position of the participant that
 // is going to be replaced while the playback is shown.
-func (u *UserService) StartPlayback(playbackUrl string, userId string) error {
+func (u *UserService) StartPlayback(playbackURL string, userID string) error {
 	data := url.Values{}
-	data.Set("playback[url]", playbackUrl)
-	data.Set("playback[replacement_id]", userId)
+	data.Set("playback[url]", playbackURL)
+	data.Set("playback[replacement_id]", userID)
 	path := "/rooms/" + u.Data.AccessKey + "/playbacks"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
 	if err != nil {
