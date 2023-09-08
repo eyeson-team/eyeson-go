@@ -20,9 +20,12 @@ func main() {
 	url := os.Args[len(os.Args)-1]
 	apiKey := os.Getenv("API_KEY")
 
-	client := eyeson.NewClient(apiKey)
+	client, err := eyeson.NewClient(apiKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println("Register webhook for endpoint", url)
-	err := client.Webhook.Register(url, eyeson.WEBHOOK_ROOM)
+	err = client.Webhook.Register(url, eyeson.WEBHOOK_ROOM)
 	if err != nil {
 		log.Fatal(err)
 	}

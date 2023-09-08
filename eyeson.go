@@ -5,12 +5,16 @@
 package eyeson
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -25,22 +29,65 @@ type Client struct {
 	apiKey  string
 	BaseURL *url.URL
 
-	client  *http.Client
-	Rooms   *RoomsService
-	Webhook *WebhookService
+	client       *http.Client
+	Rooms        *RoomsService
+	Webhook      *WebhookService
+	customCAFile string
 }
 
 type service struct {
 	client *Client
 }
 
+// ClientOption interface to specify options for client
+type ClientOption func(*Client)
+
+// WithCustomCAFile Set a custom CA file to be used instead of the
+// system-poool CAs.
+func WithCustomCAFile(customCAFile string) ClientOption {
+	return func(c *Client) {
+		c.customCAFile = customCAFile
+	}
+}
+
 // NewClient creates a new client in order to send requests to the eyeson API.
-func NewClient(key string) *Client {
+func NewClient(key string, options ...ClientOption) (*Client, error) {
 	baseURL, _ := url.Parse(endpoint)
 	c := &Client{apiKey: key, BaseURL: baseURL, client: http.DefaultClient}
+
+	for _, opt := range options {
+		opt(c)
+	}
+
+	// load customCAFile here if set
+	if len(c.customCAFile) > 0 {
+
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(c.customCAFile)
+		if err != nil {
+			return nil, err
+		}
+		caCertPool := x509.NewCertPool()
+		if !caCertPool.AppendCertsFromPEM(caCert) {
+			return nil, fmt.Errorf("Failed to append CA")
+		}
+		tlsConfig := &tls.Config{
+			RootCAs: caCertPool,
+		}
+		tr := &http.Transport{
+			MaxIdleConns:       10,
+			IdleConnTimeout:    5 * time.Second,
+			DisableCompression: true,
+			TLSClientConfig:    tlsConfig,
+		}
+		c.client = &http.Client{
+			Transport: tr,
+		}
+	}
+
 	c.Rooms = &RoomsService{c}
 	c.Webhook = &WebhookService{c}
-	return c
+	return c, nil
 }
 
 // UserClient provides a client for user requests that use the session access
@@ -103,12 +150,12 @@ func validateResponse(resp *http.Response) error {
 	case c == 200 || c == 201 || c == 204:
 		return nil
 	case c == 404:
-		return errors.New("Not found! Resource does not exist or expired.")
+		return errors.New("Not found! Resource does not exist or expired")
 	case c == 401:
-		return errors.New("Authorization failed! Check the API key to be valid.")
+		return errors.New("Authorization failed! Check the API key to be valid")
 	case c == 403:
-		return errors.New("Bad request! Check your request parameters to be valid.")
+		return errors.New("Bad request! Check your request parameters to be valid")
 	default:
-		return errors.New(fmt.Sprintf("Unknown error! Request failed for an unknown error. (%d)", c))
+		return fmt.Errorf("Unknown error! Request failed for an unknown error (%d)", c)
 	}
 }

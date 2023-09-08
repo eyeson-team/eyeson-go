@@ -9,14 +9,17 @@ import (
 	eyeson "github.com/eyeson-team/eyeson-go"
 )
 
-const OverlayUrl string = "https://eyeson-team.github.io/api/images/eyeson-overlay.png"
+const overlayURL string = "https://eyeson-team.github.io/api/images/eyeson-overlay.png"
 
 func main() {
 	userName := flag.String("user", "gopher", "unique user name")
 	roomName := flag.String("room", "demo", "room identifier")
 	flag.Parse()
 
-	client := eyeson.NewClient(os.Getenv("API_KEY"))
+	client, err := eyeson.NewClient(os.Getenv("API_KEY"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	room, err := client.Rooms.Join(*roomName, *userName, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +35,7 @@ func setLogo(room *eyeson.UserService) {
 		fmt.Printf("Cannot determine room ready status: %v", err)
 	}
 	fmt.Println("Room is ready, set Layer")
-	if err := room.SetLayer(OverlayUrl, eyeson.Foreground); err != nil {
+	if err := room.SetLayer(overlayURL, eyeson.Foreground); err != nil {
 		fmt.Printf("Failed to set overlay url: %v", err)
 	}
 	fmt.Println("Send welcome message")

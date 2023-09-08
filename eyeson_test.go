@@ -21,7 +21,10 @@ func setup() (client *Client, mux *http.ServeMux, serverURL string, teardown fun
 	// server is a test HTTP server used to provide mock API responses.
 	server := httptest.NewServer(mux)
 
-	client = NewClient(testAPIKey)
+	client, err := NewClient(testAPIKey)
+	if err != nil {
+		panic("Failed to create new client")
+	}
 	url, _ := url.Parse(server.URL + "/")
 	client.BaseURL = url
 
@@ -55,7 +58,10 @@ func testFormValues(t *testing.T, r *http.Request, values values) {
 }
 
 func TestNewClient(t *testing.T) {
-	c := NewClient("apiKey")
+	c, err := NewClient("apiKey")
+	if err != nil {
+		t.Fatalf("Failed to init client: %s", err)
+	}
 
 	if got, want := c.BaseURL.String(), endpoint; got != want {
 		t.Errorf("NewClient BaseURL is %v, want %v", got, want)
@@ -67,7 +73,10 @@ func TestNewClient(t *testing.T) {
 
 func TestNewRequest_authorization(t *testing.T) {
 	apiKey := "secret-key"
-	c := NewClient(apiKey)
+	c, err := NewClient(apiKey)
+	if err != nil {
+		t.Fatalf("Failed to init client: %s", err)
+	}
 	req, err := c.NewRequest("GET", ".", nil)
 
 	if err != nil {
@@ -79,7 +88,11 @@ func TestNewRequest_authorization(t *testing.T) {
 }
 
 func TestNewRequest_userAuthorization(t *testing.T) {
-	c := NewClient("api-key").UserClient()
+	cl, err := NewClient("api-key")
+	if err != nil {
+		t.Fatalf("Failed to init client: %s", err)
+	}
+	c := cl.UserClient()
 	req, err := c.NewRequest("GET", ".", nil)
 
 	if err != nil {
@@ -91,7 +104,10 @@ func TestNewRequest_userAuthorization(t *testing.T) {
 }
 
 func TestNewRequest_userAgent(t *testing.T) {
-	c := NewClient("")
+	c, err := NewClient("")
+	if err != nil {
+		t.Fatalf("Failed to init client: %s", err)
+	}
 	req, err := c.NewRequest("GET", ".", nil)
 
 	if err != nil {

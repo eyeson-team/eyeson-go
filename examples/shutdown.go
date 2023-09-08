@@ -12,8 +12,12 @@ func main() {
 	id := flag.String("id", "", "meeting identifier to shutdown")
 	flag.Parse()
 
-	client := eyeson.NewClient(os.Getenv("API_KEY"))
-	err := client.Rooms.Shutdown(*id)
+	client, err := eyeson.NewClient(os.Getenv("API_KEY"))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+	err = client.Rooms.Shutdown(*id)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

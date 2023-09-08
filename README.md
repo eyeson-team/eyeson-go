@@ -10,7 +10,7 @@ API](https://eyeson-team.github.io/api/api-reference/).
 
 ```golang
 // Get your api-key at https://eyeson-team.github.io/api
-client := eyeson.NewClient(eyesonApiKey)
+client, err := eyeson.NewClient(eyesonApiKey)
 room, err := client.Rooms.Join("standup meeting", "mike")
 room.Links.Gui // https://app.eyeson.team/?sessionToken URL to eyeson web GUI
 err = room.WaitReady()
