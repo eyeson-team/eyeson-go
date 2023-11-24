@@ -11,6 +11,10 @@ import (
 	eyeson "github.com/eyeson-team/eyeson-go"
 )
 
+// This example demonstrates the observer capabilities. It starts
+// a room and connects on the observer socket.
+// If a new participant gets online, a giphy is played and a
+// welcome-chat message is sent.
 func main() {
 	userName := flag.String("user", "observer", "Meeting Assistant")
 	roomName := flag.String("room", "demo", "room identifier")
@@ -22,6 +26,11 @@ func main() {
 		options = append(options, eyeson.WithCustomEndpoint(*apiEndpoint))
 	}
 
+	if len(os.Getenv("API_KEY")) == 0 {
+		fmt.Println("Error: Please set the environment variable API_KEY")
+		return
+	}
+
 	client, err := eyeson.NewClient(os.Getenv("API_KEY"), options...)
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Join the room at %q\n", room.Data.Links.GuestJoin)
+	fmt.Printf("\nJoin the room at %q\n\n", room.Data.Links.GuestJoin)
 
 	msgCh, err := client.Observer.Connect(context.Background(), room.Data.Room.ID)
 	if err != nil {
@@ -57,6 +66,11 @@ func main() {
 							fmt.Println("Failed to start playback: ", err)
 						}
 					}()
+
+					// add a chat message
+					if err = room.Chat(fmt.Sprintf("Please welcome user %s to this meeting", m.Participant.Name)); err != nil {
+						fmt.Println("Failed to send chat: ", err)
+					}
 				}
 
 			case *eyeson.RoomUpdate:
