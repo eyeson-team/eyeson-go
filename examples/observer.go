@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	eyeson "github.com/eyeson-team/eyeson-go"
 )
@@ -29,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Join the room at %q", room.Data.Links.GuestJoin)
+	fmt.Printf("Join the room at %q\n", room.Data.Links.GuestJoin)
 
 	msgCh, err := client.Observer.Connect(context.Background(), room.Data.Room.ID)
 	if err != nil {
@@ -46,6 +47,18 @@ func main() {
 			switch m := msg.(type) {
 			case *eyeson.ParticipantUpdate:
 				fmt.Printf("user %s is online %v\n", m.Participant.Name, m.Participant.Online)
+
+				if m.Participant.Online {
+					// play a hello after 1s for this new participant
+					go func() {
+						time.Sleep(1 * time.Second)
+						helloVideo := "https://media4.giphy.com/media/3pZipqyo1sqHDfJGtz/giphy.mp4"
+						if err = room.StartPlayback(helloVideo, ""); err != nil {
+							fmt.Println("Failed to start playback: ", err)
+						}
+					}()
+				}
+
 			case *eyeson.RoomUpdate:
 				fmt.Printf("Room %s is ready %v\n", m.Content.Name, m.Content.Ready)
 				if m.Content.Shutdown {
@@ -53,7 +66,7 @@ func main() {
 					return
 				}
 			case *eyeson.Chat:
-				fmt.Printf("Chat: %s - %s", m.ClientID, m.Content)
+				fmt.Printf("Chat: %s - %s\n", m.ClientID, m.Content)
 			}
 		}
 
