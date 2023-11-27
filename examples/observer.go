@@ -79,8 +79,33 @@ func main() {
 					fmt.Printf("Room %s is shutting down now.\n", m.Content.Name)
 					return
 				}
+			case *eyeson.PodiumUpdate:
+				fmt.Println("Podium:")
+				for _, v := range m.Podium {
+					if len(v.UserID) > 0 {
+						fmt.Printf("%d,%d,%dx%d -> %s\n", v.Left, v.Top, v.Width, v.Height, v.UserID)
+					} else {
+						fmt.Printf("%d,%d,%dx%d -> %s\n", v.Left, v.Top, v.Width, v.Height, "(empty)")
+					}
+				}
 			case *eyeson.Chat:
 				fmt.Printf("Chat: %s - %s\n", m.ClientID, m.Content)
+			case *eyeson.SnapshotUpdate:
+				for _, s := range m.Snapshots {
+					if s.Links.Download != nil {
+						fmt.Printf("Snapshot taken %s\n", *s.Links.Download)
+					}
+				}
+			case *eyeson.RecordingUpdate:
+				switch {
+				case m.Recording.Duration == nil && m.Recording.Links.Download == nil:
+					fmt.Printf("Recording %s started\n", m.Recording.ID)
+				case m.Recording.Duration != nil && m.Recording.Links.Download == nil:
+					fmt.Printf("Recording %s stopped, duration: %d\n", m.Recording.ID, *m.Recording.Duration)
+				default:
+					fmt.Printf("Recording %s downloadable at %s\n", m.Recording.ID, *m.Recording.Links.Download)
+				}
+
 			}
 		}
 

@@ -124,7 +124,7 @@ type Recording struct {
 	ID string `json:"id"`
 	// Unix timestamp
 	CreatedAt int       `json:"created_at"`
-	Duration  int       `json:"duration"`
+	Duration  *int      `json:"duration"`
 	Links     Links     `json:"links"`
 	User      EventUser `json:"user"`
 	Room      EventRoom `json:"room"`
@@ -178,7 +178,7 @@ type Playback struct {
 // PlaybackUpdate Sent when a playback was started.
 type PlaybackUpdate struct {
 	EventBase
-	Playing Playback `json:"playing"`
+	Playing []Playback `json:"playing"`
 }
 
 var eventTypes = map[string]func() EventInterface{
@@ -188,7 +188,7 @@ var eventTypes = map[string]func() EventInterface{
 	"recording_update":   func() EventInterface { return &RecordingUpdate{} },
 	"broadcasts_update":  func() EventInterface { return &BroadcastUpdate{} },
 	"options_update":     func() EventInterface { return &OptionsUpdate{} },
-	"snapshots_update":   func() EventInterface { return &SnapshotUpdate{} },
+	"snapshot_update":    func() EventInterface { return &SnapshotUpdate{} },
 	"playback_update":    func() EventInterface { return &PlaybackUpdate{} },
 	"chat":               func() EventInterface { return &Chat{} },
 }
