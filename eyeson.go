@@ -32,6 +32,7 @@ type Client struct {
 	client       *http.Client
 	Rooms        *RoomsService
 	Webhook      *WebhookService
+	Observer     *ObserverService
 	customCAFile string
 }
 
@@ -47,6 +48,14 @@ type ClientOption func(*Client)
 func WithCustomCAFile(customCAFile string) ClientOption {
 	return func(c *Client) {
 		c.customCAFile = customCAFile
+	}
+}
+
+// WithCustomEndpoint Set an endpoint which differs from the official
+// api endpoint.
+func WithCustomEndpoint(endpoint string) ClientOption {
+	return func(c *Client) {
+		c.BaseURL, _ = url.Parse(endpoint)
 	}
 }
 
@@ -87,6 +96,7 @@ func NewClient(key string, options ...ClientOption) (*Client, error) {
 
 	c.Rooms = &RoomsService{c}
 	c.Webhook = &WebhookService{c}
+	c.Observer = &ObserverService{c}
 	return c, nil
 }
 

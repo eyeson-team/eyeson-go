@@ -95,6 +95,7 @@ type TurnServer struct {
 
 // Room has attributes for SIP details and GuestToken
 type Room struct {
+	ID         string `json:"id"`
 	GuestToken string `json:"guest_token"`
 	SIP        SIP    `json:"sip"`
 	Shutdown   bool   `json:"shutdown"`
