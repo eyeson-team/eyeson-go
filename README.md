@@ -21,6 +21,29 @@ err = room.SetLayer(overlayUrl, eyeson.Foreground)
 err = room.Chat("Welcome!")
 ```
 
+In order to receive events from the running meeting, connect
+on the observer socket like this:
+
+```golang
+client, _ := eyeson.NewClient(eyesonApiKey)
+room, _ := client.Rooms.Join("standup meeting", "mike")
+msgCh, _ := client.Observer.Connect(context.Background(), room.Data.Room.ID)
+for {
+	select {
+	case msg, ok := <-msgCh:
+		if !ok {
+			fmt.Println("Channel closed. Probably disconnected")
+			return
+		}
+		fmt.Println("Received event type: ", msg.GetType())
+		switch m := msg.(type) {
+		case *eyeson.Chat:
+			fmt.Printf("Chat: %s - %s\n", m.ClientID, m.Content)
+		}
+	}
+}
+```
+
 ## Development
 
 ```sh
