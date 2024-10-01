@@ -168,6 +168,15 @@ type Chat struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// CustomMessage contains a custom message.
+type CustomMessage struct {
+	EventBase
+	Content   string    `json:"content"`
+	ClientID  string    `json:"cid"`
+	UserID    string    `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 // Playback represents a playback i.e. media inject into the confserver.
 type Playback struct {
 	URL    string `json:"url"`
@@ -191,6 +200,7 @@ var eventTypes = map[string]func() EventInterface{
 	"snapshot_update":    func() EventInterface { return &SnapshotUpdate{} },
 	"playback_update":    func() EventInterface { return &PlaybackUpdate{} },
 	"chat":               func() EventInterface { return &Chat{} },
+	"custom":             func() EventInterface { return &CustomMessage{} },
 }
 
 // Connect connects the observer and returns an eventInterface channel on success.
