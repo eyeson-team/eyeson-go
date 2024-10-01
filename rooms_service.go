@@ -68,3 +68,38 @@ func (srv *RoomsService) Shutdown(id string) error {
 	}
 	return nil
 }
+
+// ForwardSource starts forwarding the userID media to the specified url.
+func (srv *RoomsService) ForwardSource(id string, forwardID string, userID string,
+	mediaTypes []MediaType, destURL string) error {
+	data := url.Values{}
+	data.Set("forward_id", forwardID)
+	data.Set("user_id", userID)
+	data.Set("url", destURL)
+	for _, m := range mediaTypes {
+		data.Set("type", string(m))
+	}
+
+	req, err := srv.client.NewRequest(http.MethodPost, "/rooms/"+id+"/forward/source", data)
+	if err != nil {
+		return err
+	}
+	_, err = srv.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteForward deletes a forward by its forwardID
+func (srv *RoomsService) DeleteForward(id string, forwardID string) error {
+	req, err := srv.client.NewRequest(http.MethodDelete, "/rooms/"+id+"/forward/"+forwardID, nil)
+	if err != nil {
+		return err
+	}
+	_, err = srv.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
