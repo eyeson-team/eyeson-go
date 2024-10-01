@@ -5,6 +5,7 @@
 package eyeson
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -119,6 +120,28 @@ func (c *Client) NewRequest(method, urlStr string, data url.Values) (*http.Reque
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Accept", "application/json")
+	if c.apiKey != "" {
+		req.Header.Set("Authorization", c.apiKey)
+	}
+	req.Header.Set("User-Agent", userAgent)
+
+	return req, nil
+}
+
+// NewPlainRequest create a request with bytes and content-type
+func (c *Client) NewPlainRequest(method, urlStr string, data *bytes.Buffer, contentType string) (*http.Request, error) {
+	u, err := c.BaseURL.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(method, u.String(), data)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Accept", "application/json")
 	if c.apiKey != "" {
 		req.Header.Set("Authorization", c.apiKey)

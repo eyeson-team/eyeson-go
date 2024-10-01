@@ -1,8 +1,12 @@
 package eyeson
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -18,6 +22,15 @@ const Background int = -1
 
 // Foreground provides the z-index to represent a foreground image.
 const Foreground int = 1
+
+// ImageType provides custom type for specifying image type
+type ImageType string
+
+// List of supported image types
+const (
+	JPG ImageType = "jpg"
+	PNG ImageType = "png"
+)
 
 // UserService provides methods a user can perform.
 type UserService struct {
@@ -196,6 +209,48 @@ func (u *UserService) SetLayer(imgURL string, zIndex int) error {
 	}
 	path := "/rooms/" + u.Data.AccessKey + "/layers"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
+
+// SetLayerImage sets a layer image providing
+// an image file. The z-index should be set using the constants Foreground or
+// Background.
+func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex int) error {
+
+	body := &bytes.Buffer{}
+	// Create a multipart writer
+	writer := multipart.NewWriter(body)
+	fileName := "layer-img."
+	switch imageType {
+	case PNG, JPG:
+		fileName += string(imageType)
+	default:
+		return fmt.Errorf("Unsupported image type %s", imageType)
+	}
+	part, err := writer.CreateFormFile("file", fileName)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(part, bytes.NewReader(imgData))
+	if err != nil {
+		return err
+	}
+
+	if zIndex == 1 {
+		writer.WriteField("z-index", "1")
+	} else {
+		writer.WriteField("z-index", "-1")
+	}
+	writer.Close()
+	path := "/rooms/" + u.Data.AccessKey + "/layers"
+	req, err := u.client.NewPlainRequest(http.MethodPost, path, body, writer.FormDataContentType())
 	if err != nil {
 		return err
 	}
