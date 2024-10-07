@@ -2,12 +2,17 @@ package eyeson
 
 // RoomResponse holds available attributes to a room.
 type RoomResponse struct {
-	AccessKey string    `json:"access_key"`
-	Links     RoomLinks `json:"links"`
-	Room      Room      `json:"room"`
-	User      User      `json:"user"`
-	Ready     bool      `json:"ready"`
-	Signaling Signaling `json:"signaling"`
+	AccessKey string      `json:"access_key"`
+	Links     RoomLinks   `json:"links"`
+	Room      Room        `json:"room"`
+	User      User        `json:"user"`
+	Ready     bool        `json:"ready"`
+	Signaling Signaling   `json:"signaling"`
+	Options   RoomOptions `json:"options"`
+}
+
+type RoomOptions struct {
+	Widescreen bool `json:"widescreen"`
 }
 
 // Signaling base container for signaling options.
