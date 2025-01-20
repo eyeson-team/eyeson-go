@@ -109,10 +109,7 @@ func (c *Client) UserClient() *Client {
 
 // NewRequest prepares a request to be sent to the API.
 func (c *Client) NewRequest(method, urlStr string, data url.Values) (*http.Request, error) {
-	u, err := c.BaseURL.Parse(urlStr)
-	if err != nil {
-		return nil, err
-	}
+	u := c.BaseURL.JoinPath(urlStr)
 
 	req, err := http.NewRequest(method, u.String(), strings.NewReader(data.Encode()))
 	if err != nil {
@@ -131,10 +128,7 @@ func (c *Client) NewRequest(method, urlStr string, data url.Values) (*http.Reque
 
 // NewPlainRequest create a request with bytes and content-type
 func (c *Client) NewPlainRequest(method, urlStr string, data *bytes.Buffer, contentType string) (*http.Request, error) {
-	u, err := c.BaseURL.Parse(urlStr)
-	if err != nil {
-		return nil, err
-	}
+	u := c.BaseURL.JoinPath(urlStr)
 
 	req, err := http.NewRequest(method, u.String(), data)
 	if err != nil {
