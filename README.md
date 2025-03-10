@@ -2,14 +2,14 @@
 # eyeson go library
 
 A golang client for the [eyeson video conferencing
-API](https://eyeson-team.github.io/api/api-reference/).
+API](https://docs.eyeson.com/docs/rest/eyeson-overview/).
 
 ![eyeson ninja gopher](eyeson_go_ninja.png)
 
 ## Usage
 
 ```golang
-// Get your api-key at https://eyeson-team.github.io/api
+// Get your api-key at https://docs.eyeson.com/docs/rest/eyeson-api#how-to-obtain-an-eyeson-api-key
 client, err := eyeson.NewClient(eyesonApiKey)
 room, err := client.Rooms.Join("standup meeting", "mike")
 room.Links.Gui // https://app.eyeson.team/?sessionToken URL to eyeson web GUI
