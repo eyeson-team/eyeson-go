@@ -38,6 +38,21 @@ type UserService struct {
 	Data   *RoomResponse
 }
 
+// NewFromAccessKey Create a new UserService from an access-key.
+func NewUserServiceFromAccessKey(accessKey string, options ...ClientOption) (*UserService, error) {
+	client, err := NewClient("", options...)
+	if err != nil {
+		return nil, err
+	}
+	u := &UserService{
+		client: client,
+		Data: &RoomResponse{
+			AccessKey: accessKey,
+		},
+	}
+	return u, nil
+}
+
 // WaitReady waits until a meeting has successfully been started. It has a
 // fixed polling interval of one second. WaitReady responds with an error on
 // timeout or any communication problems.

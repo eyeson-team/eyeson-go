@@ -11,9 +11,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -73,7 +73,7 @@ func NewClient(key string, options ...ClientOption) (*Client, error) {
 	if len(c.customCAFile) > 0 {
 
 		// Load CA cert
-		caCert, err := ioutil.ReadFile(c.customCAFile)
+		caCert, err := os.ReadFile(c.customCAFile)
 		if err != nil {
 			return nil, err
 		}
