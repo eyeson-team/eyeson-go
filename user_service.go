@@ -30,6 +30,7 @@ type ImageType string
 const (
 	JPG ImageType = "jpg"
 	PNG ImageType = "png"
+	SVG ImageType = "svg"
 )
 
 // UserService provides methods a user can perform.
@@ -244,7 +245,7 @@ func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex 
 	writer := multipart.NewWriter(body)
 	fileName := "layer-img."
 	switch imageType {
-	case PNG, JPG:
+	case PNG, JPG, SVG:
 		fileName += string(imageType)
 	default:
 		return fmt.Errorf("Unsupported image type %s", imageType)
