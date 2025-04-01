@@ -28,19 +28,19 @@ type ImageType string
 
 // List of supported image types
 const (
-	JPG  ImageType = "jpg"
-	PNG  ImageType = "png"
-	SVG  ImageType = "svg"
-	WEBP ImageType = "webp"
+	Jpg  ImageType = "jpg"
+	Png  ImageType = "png"
+	Svg  ImageType = "svg"
+	Webp ImageType = "webp"
 )
 
 // Layout provides a custom type for specifying layout configuration.
 type Layout string
 
 const (
-	// AUTO Automatically sets layouts according to the number of participants
+	// Auto Automatically sets layouts according to the number of participants
 	Auto Layout = "auto"
-	// CUSTOM Maintains manually assigned positions.
+	// Custom Maintains manually assigned positions.
 	Custom Layout = "custom"
 )
 
@@ -186,23 +186,35 @@ func (u *UserService) StopBroadcast() error {
 	return validateResponse(resp)
 }
 
+// LayoutObjectFit defines how content fits within its container in a layout.
 type LayoutObjectFit string
 
 const (
-	Cover   LayoutObjectFit = "cover"
+	// Cover scales the content to cover the entire container, potentially cropping some parts.
+	Cover LayoutObjectFit = "cover"
+	// Contain scales the content to fit within the container while maintaining aspect ratio.
 	Contain LayoutObjectFit = "contain"
+	// Autofit automatically determines the best fitting method for the content.
 	Autofit LayoutObjectFit = "auto"
 )
 
+// LayoutPos represents the position and dimensions of a participant in a layout.
 type LayoutPos struct {
-	X         int
-	Y         int
-	Width     int
-	Height    int
+	// X is the horizontal position coordinate.
+	X int
+	// Y is the vertical position coordinate.
+	Y int
+	// Width is the horizontal size of the position.
+	Width int
+	// Height is the vertical size of the position.
+	Height int
+	// ObjectFit determines how the participant's video fits within the assigned space.
 	ObjectFit LayoutObjectFit
 }
 
+// LayoutMap contains the positions of participants in a custom layout configuration.
 type LayoutMap struct {
+	// Positions is a slice of participant position configurations.
 	Positions []LayoutPos
 }
 
@@ -214,21 +226,32 @@ func (lmap *LayoutMap) toString() string {
 	return "[" + strings.Join(serialMaps, ",") + "]"
 }
 
+// AudioInsertConfig defines the configuration options for audio insertion.
 type AudioInsertConfig string
 
 const (
-	AudioInsertEnabled   AudioInsertConfig = "enabled"
-	AudioInsertDisabled  AudioInsertConfig = "disabled"
-	AudioInsertAudioOnly AudioInsertConfig = "audio_only"
+	// Enabled indicates that audio insert is shown all the time.
+	Enabled AudioInsertConfig = "enabled"
+	// Disabled indicates that audio insert is turned off.
+	Disabled AudioInsertConfig = "disabled"
+	// AudioOnly indicates that the insert is only shown if the participant is not shown on the podium.
+	AudioOnly AudioInsertConfig = "audio_only"
 )
 
+// AudioInsertPosition represents the coordinates for positioning an audio insert visual element.
 type AudioInsertPosition struct {
+	// X is the horizontal position coordinate.
 	X int
+	// Y is the vertical position coordinate.
 	Y int
 }
 
+// AudioInsert contains configuration for inserting audio into a meeting.
 type AudioInsert struct {
-	Config   AudioInsertConfig
+	// Config specifies whether audio insertion is enabled, disabled, or audio-only.
+	Config AudioInsertConfig
+	// Position defines the visual position of the audio insert when enabled.
+	// May be nil if no position is specified or for audio-only inserts.
 	Position *AudioInsertPosition
 }
 
@@ -267,8 +290,8 @@ func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, 
 	if audioInsert != nil {
 		data.Set("audio_insert", string(audioInsert.Config))
 		if audioInsert.Position != nil {
-			data.Set("audio_insert_position[x]", string(audioInsert.Position.X))
-			data.Set("audio_insert_position[y]", string(audioInsert.Position.Y))
+			data.Set("audio_insert_position[x]", fmt.Sprint(audioInsert.Position.X))
+			data.Set("audio_insert_position[y]", fmt.Sprint(audioInsert.Position.Y))
 		}
 	}
 
@@ -317,7 +340,7 @@ func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex 
 	writer := multipart.NewWriter(body)
 	fileName := "layer-img."
 	switch imageType {
-	case PNG, JPG, SVG, WEBP:
+	case Png, Jpg, Svg, Webp:
 		fileName += string(imageType)
 	default:
 		return fmt.Errorf("Unsupported image type %s", imageType)
