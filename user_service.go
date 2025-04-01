@@ -214,13 +214,31 @@ func (lmap *LayoutMap) toString() string {
 	return "[" + strings.Join(serialMaps, ",") + "]"
 }
 
+type AudioInsertConfig string
+
+const (
+	AudioInsertEnabled   AudioInsertConfig = "enabled"
+	AudioInsertDisabled  AudioInsertConfig = "disabled"
+	AudioInsertAudioOnly AudioInsertConfig = "audio_only"
+)
+
+type AudioInsertPosition struct {
+	X int
+	Y int
+}
+
+type AudioInsert struct {
+	Config   AudioInsertConfig
+	Position *AudioInsertPosition
+}
+
 // SetLayout sets a participant podium layout where the layout is either
 // "custom" or "auto". The users list is of user-ids or empty strings for empty
 // participant positions. The flag voiceActivation replaces participants
 // actively by voice detection. The flag showNames show or hides participant
 // name overlays.
 func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, showNames bool,
-	layoutName *string, layoutMap *LayoutMap) error {
+	layoutName *string, layoutMap *LayoutMap, audioInsert *AudioInsert) error {
 	data := url.Values{}
 	if layout == "custom" {
 		data.Set("layout", "custom")
@@ -246,6 +264,14 @@ func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, 
 	if layoutMap != nil {
 		data.Set("map", layoutMap.toString())
 	}
+	if audioInsert != nil {
+		data.Set("audio_insert", string(audioInsert.Config))
+		if audioInsert.Position != nil {
+			data.Set("audio_insert_position[x]", string(audioInsert.Position.X))
+			data.Set("audio_insert_position[y]", string(audioInsert.Position.Y))
+		}
+	}
+
 	path := "/rooms/" + u.Data.AccessKey + "/layout"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
 	if err != nil {

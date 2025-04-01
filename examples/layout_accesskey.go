@@ -14,7 +14,8 @@ func main() {
 		&eyeson.LayoutMap{
 			Positions: []eyeson.LayoutPos{
 				{X: 10, Y: 10, Width: 100, Height: 200,
-					ObjectFit: eyeson.CONTAIN}}})
+					ObjectFit: eyeson.CONTAIN}}},
+		nil)
 	if err != nil {
 		fmt.Printf("Failed: %s", err)
 	}
