@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -33,13 +32,23 @@ const (
 	SVG ImageType = "svg"
 )
 
+// Layout provides a custom type for specifying layout configuration.
+type Layout string
+
+const (
+	// AUTO Automatically sets layouts according to the number of participants
+	AUTO Layout = "auto"
+	// CUSTOM Maintains manually assigned positions; empty positions remain vacant
+	CUSTOM Layout = "custom"
+)
+
 // UserService provides methods a user can perform.
 type UserService struct {
 	client *Client
 	Data   *RoomResponse
 }
 
-// NewFromAccessKey Create a new UserService from an access-key.
+// NewUserServiceFromAccessKey Create a new UserService from an access-key.
 func NewUserServiceFromAccessKey(accessKey string, options ...ClientOption) (*UserService, error) {
 	client, err := NewClient("", options...)
 	if err != nil {
@@ -180,15 +189,16 @@ func (u *UserService) StopBroadcast() error {
 // participant positions. The flag voiceActivation replaces participants
 // actively by voice detection. The flag showNames show or hides participant
 // name overlays.
-func (u *UserService) SetLayout(layout string, users []string, voiceActivation, showNames bool) error {
+func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, showNames bool,
+	layoutName *string) error {
 	data := url.Values{}
 	if layout == "custom" {
 		data.Set("layout", "custom")
 	} else {
 		data.Set("layout", "auto")
 	}
-	for i, userID := range users {
-		data.Set("users["+strconv.Itoa(i)+"]", userID)
+	for _, userID := range users {
+		data.Set("users[]", userID)
 	}
 	if voiceActivation {
 		data.Set("voice_activation", "true")
@@ -199,6 +209,9 @@ func (u *UserService) SetLayout(layout string, users []string, voiceActivation, 
 		data.Set("show_names", "true")
 	} else {
 		data.Set("show_names", "false")
+	}
+	if layoutName != nil {
+		data.Set("name", *layoutName)
 	}
 	path := "/rooms/" + u.Data.AccessKey + "/layout"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
