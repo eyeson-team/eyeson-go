@@ -39,9 +39,9 @@ type Layout string
 
 const (
 	// AUTO Automatically sets layouts according to the number of participants
-	AUTO Layout = "auto"
+	Auto Layout = "auto"
 	// CUSTOM Maintains manually assigned positions.
-	CUSTOM Layout = "custom"
+	Custom Layout = "custom"
 )
 
 // UserService provides methods a user can perform.
@@ -189,9 +189,9 @@ func (u *UserService) StopBroadcast() error {
 type LayoutObjectFit string
 
 const (
-	COVER   LayoutObjectFit = "cover"
-	CONTAIN LayoutObjectFit = "contain"
-	AUTOFIT LayoutObjectFit = "auto"
+	Cover   LayoutObjectFit = "cover"
+	Contain LayoutObjectFit = "contain"
+	Autofit LayoutObjectFit = "auto"
 )
 
 type LayoutPos struct {
