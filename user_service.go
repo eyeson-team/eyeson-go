@@ -28,9 +28,10 @@ type ImageType string
 
 // List of supported image types
 const (
-	JPG ImageType = "jpg"
-	PNG ImageType = "png"
-	SVG ImageType = "svg"
+	JPG  ImageType = "jpg"
+	PNG  ImageType = "png"
+	SVG  ImageType = "svg"
+	WEBP ImageType = "webp"
 )
 
 // Layout provides a custom type for specifying layout configuration.
@@ -290,7 +291,7 @@ func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex 
 	writer := multipart.NewWriter(body)
 	fileName := "layer-img."
 	switch imageType {
-	case PNG, JPG, SVG:
+	case PNG, JPG, SVG, WEBP:
 		fileName += string(imageType)
 	default:
 		return fmt.Errorf("Unsupported image type %s", imageType)
