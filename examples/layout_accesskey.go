@@ -17,12 +17,19 @@ func main() {
 			Y: 10,
 		},
 	}
-	err := userService.SetLayout(eyeson.Auto, []string{""}, false, false, &layoutName,
-		&eyeson.LayoutMap{
-			Positions: []eyeson.LayoutPos{
-				{X: 10, Y: 10, Width: 100, Height: 200,
-					ObjectFit: eyeson.Contain}}},
-		&audioInsertConfig)
+	err := userService.SetLayout(eyeson.Auto,
+		&eyeson.SetLayoutOptions{
+			Users:           []string{""},
+			LayoutName:      layoutName,
+			VoiceActivation: true,
+			ShowNames:       true,
+			LayoutMap: &eyeson.LayoutMap{
+				Positions: []eyeson.LayoutPos{
+					{X: 10, Y: 10, Width: 100, Height: 200,
+						ObjectFit: eyeson.Contain}}},
+			AudioInsert: &audioInsertConfig,
+		})
+
 	if err != nil {
 		fmt.Printf("Failed: %s", err)
 	}

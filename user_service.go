@@ -255,43 +255,58 @@ type AudioInsert struct {
 	Position *AudioInsertPosition
 }
 
+// SetLayoutOptions contains options for configuring a meeting layout.
+type SetLayoutOptions struct {
+	// Users is a list of user IDs or empty strings for empty participant positions.
+	Users []string
+	// VoiceActivation determines if participants are actively replaced by voice detection.
+	VoiceActivation bool
+	// ShowNames determines if participant name overlays are shown.
+	ShowNames bool
+	// LayoutName specifies an optional name for the layout configuration.
+	LayoutName string
+	// LayoutMap contains the custom positions of participants when using custom layout.
+	LayoutMap *LayoutMap
+	// AudioInsert contains configuration for audio insertion if required.
+	AudioInsert *AudioInsert
+}
+
 // SetLayout sets a participant podium layout where the layout is either
 // "custom" or "auto". The users list is of user-ids or empty strings for empty
 // participant positions. The flag voiceActivation replaces participants
 // actively by voice detection. The flag showNames show or hides participant
 // name overlays.
-func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, showNames bool,
-	layoutName *string, layoutMap *LayoutMap, audioInsert *AudioInsert) error {
+func (u *UserService) SetLayout(layout Layout, options *SetLayoutOptions) error {
 	data := url.Values{}
 	if layout == "custom" {
 		data.Set("layout", "custom")
 	} else {
 		data.Set("layout", "auto")
 	}
-	for _, userID := range users {
-		data.Set("users[]", userID)
-	}
-	if voiceActivation {
-		data.Set("voice_activation", "true")
-	} else {
-		data.Set("voice_activation", "false")
-	}
-	if showNames {
-		data.Set("show_names", "true")
-	} else {
-		data.Set("show_names", "false")
-	}
-	if layoutName != nil {
-		data.Set("name", *layoutName)
-	}
-	if layoutMap != nil {
-		data.Set("map", layoutMap.toString())
-	}
-	if audioInsert != nil {
-		data.Set("audio_insert", string(audioInsert.Config))
-		if audioInsert.Position != nil {
-			data.Set("audio_insert_position[x]", fmt.Sprint(audioInsert.Position.X))
-			data.Set("audio_insert_position[y]", fmt.Sprint(audioInsert.Position.Y))
+	if options != nil {
+		for _, userID := range options.Users {
+			data.Set("users[]", userID)
+		}
+		if options.VoiceActivation {
+			data.Set("voice_activation", "true")
+		} else {
+			data.Set("voice_activation", "false")
+		}
+		if options.ShowNames {
+			data.Set("show_names", "true")
+		} else {
+			data.Set("show_names", "false")
+		}
+		data.Set("name", options.LayoutName)
+		if options.LayoutMap != nil {
+			data.Set("map", options.LayoutMap.toString())
+		}
+		if options.AudioInsert != nil {
+			data.Set("audio_insert", string(options.AudioInsert.Config))
+			if options.AudioInsert.Position != nil {
+				data.Set("audio_insert_position[x]", fmt.Sprint(options.AudioInsert.Position.X))
+				data.Set("audio_insert_position[y]", fmt.Sprint(options.AudioInsert.Position.Y))
+			}
 		}
 	}
 
@@ -392,15 +407,53 @@ func (u *UserService) ClearLayer(zIndex int) error {
 	return validateResponse(resp)
 }
 
+// PlaybackOptions options for starting a playback.
+type PlaybackOptions struct {
+	// ReplacedUserID is the ID of the user to be replaced by the playback.
+	// If left empty, the playback is shown as a separate participant.
+	ReplacedUserID string
+	// PlayID is a custom identifier for the playback.
+	PlayID string
+	// Name is a display name for the playback.
+	Name string
+	// LoopCount specifies how many times the video should loop.
+	// Default is 0 (play once).
+	LoopCount int
+}
+
 // StartPlayback starts a playback using the given public available URL to a
 // video file. The given user id marks the position of the participant that
-// is going to be replaced while the playback is shown.
-func (u *UserService) StartPlayback(playbackURL string, userID string) error {
+// is going to be replaced while the playback is shown. If replacedUserID is left empty
+// the playback is shown as a separate participant of the meeting.
+func (u *UserService) StartPlayback(playbackURL string, options *PlaybackOptions) error {
 	data := url.Values{}
 	data.Set("playback[url]", playbackURL)
-	data.Set("playback[replacement_id]", userID)
+	if options.ReplacedUserID != "" {
+		data.Set("playback[replacement_id]", options.ReplacedUserID)
+	}
+	if options.PlayID != "" {
+		data.Set("playback[play_id]", options.PlayID)
+	}
+	if options.Name != "" {
+		data.Set("playback[name]", options.Name)
+	}
+	data.Set("playback[loop_count]", fmt.Sprint(options.LoopCount))
 	path := "/rooms/" + u.Data.AccessKey + "/playbacks"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
+
+// StopPlayback Stops a playback by its playID.
+func (u *UserService) StopPlayback(playID string) error {
+	path := "/rooms/" + u.Data.AccessKey + "/playbacks/" + playID
+	req, err := u.client.NewRequest(http.MethodDelete, path, nil)
 	if err != nil {
 		return err
 	}
