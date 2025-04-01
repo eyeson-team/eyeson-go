@@ -28,10 +28,10 @@ type ImageType string
 
 // List of supported image types
 const (
-	Jpg  ImageType = "jpg"
-	Png  ImageType = "png"
-	Svg  ImageType = "svg"
-	Webp ImageType = "webp"
+	JPG  ImageType = "jpg"
+	PNG  ImageType = "png"
+	SVG  ImageType = "svg"
+	WEBP ImageType = "webp"
 )
 
 // Layout provides a custom type for specifying layout configuration.
@@ -297,7 +297,9 @@ func (u *UserService) SetLayout(layout Layout, options *SetLayoutOptions) error 
 		} else {
 			data.Set("show_names", "false")
 		}
-		data.Set("name", options.LayoutName)
+		if options.LayoutName != "" {
+			data.Set("name", options.LayoutName)
+		}
 		if options.LayoutMap != nil {
 			data.Set("map", options.LayoutMap.toString())
 		}
@@ -322,16 +324,25 @@ func (u *UserService) SetLayout(layout Layout, options *SetLayoutOptions) error 
 	return validateResponse(resp)
 }
 
+// LayerOptions provides options for setting a layer.
+type LayerOptions struct {
+	// ID specifies a custom identifier for the layer.
+	ID string
+}
+
 // SetLayer sets a layer image using the given public available URL pointing to
 // an image file. The z-index should be set using the constants Foreground or
 // Background.
-func (u *UserService) SetLayer(imgURL string, zIndex int) error {
+func (u *UserService) SetLayer(imgURL string, zIndex int, options *LayerOptions) error {
 	data := url.Values{}
 	data.Set("url", imgURL)
 	if zIndex == 1 {
 		data.Set("z-index", "1")
 	} else {
 		data.Set("z-index", "-1")
+	}
+	if options != nil {
+		data.Set("id", options.ID)
 	}
 	path := "/rooms/" + u.Data.AccessKey + "/layers"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
@@ -348,14 +359,14 @@ func (u *UserService) SetLayer(imgURL string, zIndex int) error {
 // SetLayerImage sets a layer image providing
 // an image file. The z-index should be set using the constants Foreground or
 // Background.
-func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex int) error {
-
+func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex int,
+	options *LayerOptions) error {
 	body := &bytes.Buffer{}
 	// Create a multipart writer
 	writer := multipart.NewWriter(body)
 	fileName := "layer-img."
 	switch imageType {
-	case Png, Jpg, Svg, Webp:
+	case PNG, JPG, SVG, WEBP:
 		fileName += string(imageType)
 	default:
 		return fmt.Errorf("Unsupported image type %s", imageType)
@@ -373,6 +384,9 @@ func (u *UserService) SetLayerImage(imgData []byte, imageType ImageType, zIndex 
 		writer.WriteField("z-index", "1")
 	} else {
 		writer.WriteField("z-index", "-1")
+	}
+	if options != nil {
+		writer.WriteField("id", options.ID)
 	}
 	writer.Close()
 	path := "/rooms/" + u.Data.AccessKey + "/layers"

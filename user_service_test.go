@@ -147,7 +147,7 @@ func TestUserService_SetLayout(t *testing.T) {
 
 	mux.HandleFunc("/rooms/token/layout", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		testFormValues(t, r, values{"layout": "custom", "users[0]": "first", "users[1]": "second",
+		testFormValues(t, r, values{"layout": "custom", "users[]": "first",
 			"voice_activation": "false", "show_names": "true"})
 		fmt.Fprint(w, `{}`)
 	})
@@ -157,8 +157,9 @@ func TestUserService_SetLayout(t *testing.T) {
 		t.Errorf("RoomsService Join not successfull, got %v", err)
 	}
 
-	users := []string{"first", "second"}
-	if err = user.SetLayout("custom", users, false, true); err != nil {
+	users := []string{"first"}
+	if err = user.SetLayout("custom",
+		&SetLayoutOptions{Users: users, VoiceActivation: false, ShowNames: true}); err != nil {
 		t.Errorf("UserService could not set layout, got %v", err)
 	}
 }
@@ -185,7 +186,7 @@ func TestUserService_SetLayer(t *testing.T) {
 		t.Errorf("RoomsService Join not successfull, got %v", err)
 	}
 
-	if err = user.SetLayer(imgUrl, Foreground); err != nil {
+	if err = user.SetLayer(imgUrl, Foreground, nil); err != nil {
 		t.Errorf("UserService could not set layer, got %v", err)
 	}
 }
@@ -228,7 +229,7 @@ func TestUserService_StartPlayback(t *testing.T) {
 	vidUrl := "https://eyeson.com/playback.mp4"
 	mux.HandleFunc("/rooms/token/playbacks", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		testFormValues(t, r, values{"playback[url]": vidUrl, "playback[replacement_id]": "first"})
+		testFormValues(t, r, values{"playback[url]": vidUrl, "playback[replacement_id]": "first", "playback[loop_count]": "0"})
 		fmt.Fprint(w, `{}`)
 	})
 
@@ -237,7 +238,7 @@ func TestUserService_StartPlayback(t *testing.T) {
 		t.Errorf("RoomsService Join not successfull, got %v", err)
 	}
 
-	if err = user.StartPlayback(vidUrl, "first"); err != nil {
+	if err = user.StartPlayback(vidUrl, &PlaybackOptions{ReplacedUserID: "first", LoopCount: 0}); err != nil {
 		t.Errorf("UserService could not start playback, got %v", err)
 	}
 }

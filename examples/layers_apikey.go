@@ -15,5 +15,5 @@ func main() {
 	room.WaitReady()
 	fmt.Println("Join via:", room.Data.Links.Gui)
 	room.SetLayer("https://docs.eyeson.com/img/examples/bg_p1.png",
-		eyeson.Background)
+		eyeson.Background, nil)
 }
