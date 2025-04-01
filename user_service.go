@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -38,7 +39,7 @@ type Layout string
 const (
 	// AUTO Automatically sets layouts according to the number of participants
 	AUTO Layout = "auto"
-	// CUSTOM Maintains manually assigned positions; empty positions remain vacant
+	// CUSTOM Maintains manually assigned positions.
 	CUSTOM Layout = "custom"
 )
 
@@ -184,13 +185,41 @@ func (u *UserService) StopBroadcast() error {
 	return validateResponse(resp)
 }
 
+type LayoutObjectFit string
+
+const (
+	COVER   LayoutObjectFit = "cover"
+	CONTAIN LayoutObjectFit = "contain"
+	AUTOFIT LayoutObjectFit = "auto"
+)
+
+type LayoutPos struct {
+	X         int
+	Y         int
+	Width     int
+	Height    int
+	ObjectFit LayoutObjectFit
+}
+
+type LayoutMap struct {
+	Positions []LayoutPos
+}
+
+func (lmap *LayoutMap) toString() string {
+	serialMaps := []string{}
+	for _, p := range lmap.Positions {
+		serialMaps = append(serialMaps, fmt.Sprintf("[%d, %d, %d, %d, \"%s\"]", p.X, p.Y, p.Width, p.Height, p.ObjectFit))
+	}
+	return "[" + strings.Join(serialMaps, ",") + "]"
+}
+
 // SetLayout sets a participant podium layout where the layout is either
 // "custom" or "auto". The users list is of user-ids or empty strings for empty
 // participant positions. The flag voiceActivation replaces participants
 // actively by voice detection. The flag showNames show or hides participant
 // name overlays.
 func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, showNames bool,
-	layoutName *string) error {
+	layoutName *string, layoutMap *LayoutMap) error {
 	data := url.Values{}
 	if layout == "custom" {
 		data.Set("layout", "custom")
@@ -212,6 +241,9 @@ func (u *UserService) SetLayout(layout Layout, users []string, voiceActivation, 
 	}
 	if layoutName != nil {
 		data.Set("name", *layoutName)
+	}
+	if layoutMap != nil {
+		data.Set("map", layoutMap.toString())
 	}
 	path := "/rooms/" + u.Data.AccessKey + "/layout"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
