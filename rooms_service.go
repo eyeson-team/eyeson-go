@@ -3,6 +3,8 @@ package eyeson
 import (
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 // RoomsService provides method Join to start and join a room.
@@ -102,4 +104,58 @@ func (srv *RoomsService) DeleteForward(id string, forwardID string) error {
 		return err
 	}
 	return nil
+}
+
+// GetSnapshot retrieves a snapshot.
+func (u *RoomsService) GetSnapshot(snapshotID string) (*Snapshot, error) {
+	path := "/snapshots/" + snapshotID
+	req, err := u.client.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	var snapshot Snapshot
+	resp, err := u.client.Do(req, &snapshot)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshot, validateResponse(resp)
+}
+
+type GetSnaphostsOptions struct {
+	page      int
+	startedAt time.Time
+}
+
+// GetSnapshots retrieves a a list of snapshots for a room.
+func (u *RoomsService) GetSnapshots(ID string, options *GetSnaphostsOptions) (*[]Snapshot, error) {
+	data := url.Values{}
+	if options != nil {
+		data.Set("page", strconv.Itoa(options.page))
+		data.Set("started_at", options.startedAt.Format(time.RFC3339))
+	}
+	path := "/rooms/" + ID + "/snapshots"
+	req, err := u.client.NewRequest(http.MethodGet, path, data)
+	if err != nil {
+		return nil, err
+	}
+	var snapshot []Snapshot
+	resp, err := u.client.Do(req, &snapshot)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshot, validateResponse(resp)
+}
+
+// DeleteSnapshot deletes a snapshot.
+func (u *RoomsService) DeleteSnapshot(snapshotID string) error {
+	path := "/snapshots/" + snapshotID
+	req, err := u.client.NewRequest(http.MethodDelete, path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
 }
