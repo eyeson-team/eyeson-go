@@ -524,9 +524,9 @@ func (u *UserService) CreateSnapshot() error {
 	return validateResponse(resp)
 }
 
-// Get a snapshot from a running meeting.
+// GetSnapshot Retrieves a snapshot from a running meeting.
 func (u *UserService) GetSnapshot(snapshotID string) (*Snapshot, error) {
-	path := "/rooms/" + u.Data.AccessKey + "/snapshot/" + snapshotID
+	path := "/rooms/" + u.Data.AccessKey + "/snapshots/" + snapshotID
 	req, err := u.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
