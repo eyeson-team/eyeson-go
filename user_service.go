@@ -127,6 +127,24 @@ func (u *UserService) Chat(content string) error {
 	return validateResponse(resp)
 }
 
+// SendCustomMessage sends a custom message to all participants
+// in this meeting.
+func (u *UserService) SendCustomMessage(content string) error {
+	data := url.Values{}
+	data.Set("type", "custom")
+	data.Set("content", content)
+	path := "/rooms/" + u.Data.AccessKey + "/messages"
+	req, err := u.client.NewRequest(http.MethodPost, path, data)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
+
 // StartRecording starts a recording.
 func (u *UserService) StartRecording() error {
 	path := "/rooms/" + u.Data.AccessKey + "/recording"
@@ -490,4 +508,33 @@ func (u *UserService) StopMeeting() error {
 		return err
 	}
 	return validateResponse(resp)
+}
+
+// CreateSnapshot creates a new snapshot of the current meeting
+func (u *UserService) CreateSnapshot() error {
+	path := "/rooms/" + u.Data.AccessKey + "/snapshot"
+	req, err := u.client.NewRequest(http.MethodPost, path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
+
+// Get a snapshot from a running meeting.
+func (u *UserService) GetSnapshot(snapshotID string) (*Snapshot, error) {
+	path := "/rooms/" + u.Data.AccessKey + "/snapshot/" + snapshotID
+	req, err := u.client.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	var snapshot Snapshot
+	resp, err := u.client.Do(req, &snapshot)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshot, validateResponse(resp)
 }
