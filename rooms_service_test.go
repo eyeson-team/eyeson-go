@@ -63,3 +63,36 @@ func TestRoomsService_Shutdown(t *testing.T) {
 		t.Errorf("RoomsService Shutdown not successfull, got %v", err)
 	}
 }
+
+func TestRoomsService_ForwardSource(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/rooms/room-id/forward/source", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		testFormValues(t, r, values{"forward_id": "fw-id", "user_id": "u-1",
+			"type": "audio,video", "url": "https://dest.com"})
+		w.WriteHeader(201)
+	})
+
+	err := client.Rooms.ForwardSource("room-id", "fw-id", "u-1", []MediaType{Audio, Video}, "https://dest.com")
+	if err != nil {
+		t.Errorf("RoomsService ForwardSource not successfull, got %v", err)
+	}
+}
+
+func TestRoomsService_DeleteForward(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/rooms/room-id/forward/fw-id", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		w.WriteHeader(204)
+	})
+
+	err := client.Rooms.DeleteForward("room-id", "fw-id")
+	if err != nil {
+		t.Errorf("RoomsService DeleteForward not successfull, got %v", err)
+	}
+
+}

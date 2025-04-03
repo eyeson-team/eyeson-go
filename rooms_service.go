@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -78,9 +79,11 @@ func (srv *RoomsService) ForwardSource(id string, forwardID string, userID strin
 	data.Set("forward_id", forwardID)
 	data.Set("user_id", userID)
 	data.Set("url", destURL)
+	mediaTypesStrings := []string{}
 	for _, m := range mediaTypes {
-		data.Set("type", string(m))
+		mediaTypesStrings = append(mediaTypesStrings, string(m))
 	}
+	data.Set("type", strings.Join(mediaTypesStrings, ","))
 
 	req, err := srv.client.NewRequest(http.MethodPost, "/rooms/"+id+"/forward/source", data)
 	if err != nil {
@@ -107,39 +110,40 @@ func (srv *RoomsService) DeleteForward(id string, forwardID string) error {
 }
 
 // GetSnapshot retrieves a snapshot.
-func (u *RoomsService) GetSnapshot(snapshotID string) (*Snapshot, error) {
+func (srv *RoomsService) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	path := "/snapshots/" + snapshotID
-	req, err := u.client.NewRequest(http.MethodGet, path, nil)
+	req, err := srv.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
 	}
 	var snapshot Snapshot
-	resp, err := u.client.Do(req, &snapshot)
+	resp, err := srv.client.Do(req, &snapshot)
 	if err != nil {
 		return nil, err
 	}
 	return &snapshot, validateResponse(resp)
 }
 
+// GetSnaphostsOptions options supporting pagination and filtering.
 type GetSnaphostsOptions struct {
 	page      int
 	startedAt time.Time
 }
 
 // GetSnapshots retrieves a a list of snapshots for a room.
-func (u *RoomsService) GetSnapshots(ID string, options *GetSnaphostsOptions) (*[]Snapshot, error) {
+func (srv *RoomsService) GetSnapshots(ID string, options *GetSnaphostsOptions) (*[]Snapshot, error) {
 	data := url.Values{}
 	if options != nil {
 		data.Set("page", strconv.Itoa(options.page))
 		data.Set("started_at", options.startedAt.Format(time.RFC3339))
 	}
 	path := "/rooms/" + ID + "/snapshots"
-	req, err := u.client.NewRequest(http.MethodGet, path, data)
+	req, err := srv.client.NewRequest(http.MethodGet, path, data)
 	if err != nil {
 		return nil, err
 	}
 	var snapshot []Snapshot
-	resp, err := u.client.Do(req, &snapshot)
+	resp, err := srv.client.Do(req, &snapshot)
 	if err != nil {
 		return nil, err
 	}
