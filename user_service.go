@@ -538,3 +538,17 @@ func (u *UserService) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	}
 	return &snapshot, validateResponse(resp)
 }
+
+// LockMeeting locks a meeting, dissalowing new participants from joining
+func (u *UserService) LockMeeting() error {
+	path := "/rooms/" + u.Data.AccessKey + "/lock"
+	req, err := u.client.NewRequest(http.MethodPost, path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
