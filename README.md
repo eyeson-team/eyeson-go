@@ -9,15 +9,27 @@ API](https://docs.eyeson.com/docs/rest/eyeson-overview/).
 ## Usage
 
 ```golang
-client, err := eyeson.NewClient(eyesonApiKey)
-room, err := client.Rooms.Join("standup meeting", "mike")
-fmt.Println(room.Links.Gui) // https://app.eyeson.team/?sessionToken URL to eyeson web GUI
-err = room.WaitReady()
-overlayUrl = "https://eyeson-team.github.io/api/images/eyeson-overlay.png"
-// Set a foreground image.
-err = room.SetLayer(overlayUrl, eyeson.Foreground)
-// Send a chat message.
-err = room.Chat("Welcome!")
+package main
+
+import (
+	"fmt"
+
+	"github.com/eyeson-team/eyeson-go"
+)
+
+func main() {
+	eyesonAPIKey := "..."
+	client, _ := eyeson.NewClient(eyesonAPIKey)
+	room, _ := client.Rooms.Join("standup meeting", "mike", map[string]string{})
+	fmt.Println("Join via: ", room.Data.Links.Gui)
+	room.WaitReady()
+	overlayURL := "https://eyeson-team.github.io/api/images/eyeson-overlay.png"
+	// Set a foreground image.
+	room.SetLayer(overlayURL, eyeson.Foreground, nil)
+	// Send a chat message.
+	room.Chat("Welcome!")
+}
+
 ```
 
 In order to receive events from the running meeting, connect
