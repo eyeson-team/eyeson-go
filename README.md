@@ -9,10 +9,9 @@ API](https://docs.eyeson.com/docs/rest/eyeson-overview/).
 ## Usage
 
 ```golang
-// Get your api-key at https://docs.eyeson.com/docs/rest/eyeson-api#how-to-obtain-an-eyeson-api-key
 client, err := eyeson.NewClient(eyesonApiKey)
 room, err := client.Rooms.Join("standup meeting", "mike")
-room.Links.Gui // https://app.eyeson.team/?sessionToken URL to eyeson web GUI
+fmt.Println(room.Links.Gui) // https://app.eyeson.team/?sessionToken URL to eyeson web GUI
 err = room.WaitReady()
 overlayUrl = "https://eyeson-team.github.io/api/images/eyeson-overlay.png"
 // Set a foreground image.
