@@ -71,11 +71,12 @@ API_KEY=... go run examples/webhook-listener.go <endpoint-url>
 ```
 
 ## Releases
+- 1.6.2 Add audio to playback options  
+- 1.6.1 fixes layout user array
 - 1.6.0 webp+svg support, lock-meeting, snpashots
 - 1.5.0 Allow creating user-service via accesskey
 - 1.4.0 Add Source forward functionality
 - 1.3.0 Add Observer functionality
-- master Add Webhook signature
 - 1.1.1 Add Shutdown, Fix Webhook Response Validation
 - 1.1.0 Add Webhook Handling
 - 1.0.0 Initial Release

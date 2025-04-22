@@ -454,6 +454,8 @@ type PlaybackOptions struct {
 	// LoopCount specifies how many times the video should loop.
 	// Default is 0 (play once).
 	LoopCount int
+	// Mute/Unmute video files
+	Audio bool
 }
 
 // StartPlayback starts a playback using the given public available URL to a
@@ -463,16 +465,23 @@ type PlaybackOptions struct {
 func (u *UserService) StartPlayback(playbackURL string, options *PlaybackOptions) error {
 	data := url.Values{}
 	data.Set("playback[url]", playbackURL)
-	if options.ReplacedUserID != "" {
-		data.Set("playback[replacement_id]", options.ReplacedUserID)
+	if options != nil {
+		if options.ReplacedUserID != "" {
+			data.Set("playback[replacement_id]", options.ReplacedUserID)
+		}
+		if options.PlayID != "" {
+			data.Set("playback[play_id]", options.PlayID)
+		}
+		if options.Name != "" {
+			data.Set("playback[name]", options.Name)
+		}
+		data.Set("playback[loop_count]", fmt.Sprint(options.LoopCount))
+		if options.Audio {
+			data.Set("playback[audio]", "true")
+		} else {
+			data.Set("playback[audio]", "false")
+		}
 	}
-	if options.PlayID != "" {
-		data.Set("playback[play_id]", options.PlayID)
-	}
-	if options.Name != "" {
-		data.Set("playback[name]", options.Name)
-	}
-	data.Set("playback[loop_count]", fmt.Sprint(options.LoopCount))
 	path := "/rooms/" + u.Data.AccessKey + "/playbacks"
 	req, err := u.client.NewRequest(http.MethodPost, path, data)
 	if err != nil {

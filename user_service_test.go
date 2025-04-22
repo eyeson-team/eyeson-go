@@ -231,7 +231,8 @@ func TestUserService_StartPlayback(t *testing.T) {
 	vidUrl := "https://eyeson.com/playback.mp4"
 	mux.HandleFunc("/rooms/token/playbacks", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		testFormValues(t, r, values{"playback[url]": vidUrl, "playback[replacement_id]": "first", "playback[loop_count]": "0"})
+		testFormValues(t, r, values{"playback[url]": vidUrl, "playback[replacement_id]": "first",
+			"playback[loop_count]": "0", "playback[audio]": "true"})
 		fmt.Fprint(w, `{}`)
 	})
 
@@ -240,7 +241,7 @@ func TestUserService_StartPlayback(t *testing.T) {
 		t.Errorf("RoomsService Join not successfull, got %v", err)
 	}
 
-	if err = user.StartPlayback(vidUrl, &PlaybackOptions{ReplacedUserID: "first", LoopCount: 0}); err != nil {
+	if err = user.StartPlayback(vidUrl, &PlaybackOptions{ReplacedUserID: "first", LoopCount: 0, Audio: true}); err != nil {
 		t.Errorf("UserService could not start playback, got %v", err)
 	}
 }
