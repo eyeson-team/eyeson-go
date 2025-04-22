@@ -62,7 +62,7 @@ func main() {
 					go func() {
 						time.Sleep(1 * time.Second)
 						helloVideo := "https://media4.giphy.com/media/3pZipqyo1sqHDfJGtz/giphy.mp4"
-						if err = room.StartPlayback(helloVideo, ""); err != nil {
+						if err = room.StartPlayback(helloVideo, nil); err != nil {
 							fmt.Println("Failed to start playback: ", err)
 						}
 					}()

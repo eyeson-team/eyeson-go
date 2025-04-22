@@ -35,7 +35,7 @@ func setLogo(room *eyeson.UserService) {
 		fmt.Printf("Cannot determine room ready status: %v", err)
 	}
 	fmt.Println("Room is ready, set Layer")
-	if err := room.SetLayer(overlayURL, eyeson.Foreground); err != nil {
+	if err := room.SetLayer(overlayURL, eyeson.Foreground, nil); err != nil {
 		fmt.Printf("Failed to set overlay url: %v", err)
 	}
 	fmt.Println("Send welcome message")

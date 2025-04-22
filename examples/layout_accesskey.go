@@ -22,7 +22,6 @@ func main() {
 			Users:           []string{""},
 			LayoutName:      layoutName,
 			VoiceActivation: true,
-			ShowNames:       true,
 			LayoutMap: &eyeson.LayoutMap{
 				Positions: []eyeson.LayoutPos{
 					{X: 10, Y: 10, Width: 100, Height: 200,
