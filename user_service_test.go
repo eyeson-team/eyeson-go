@@ -159,8 +159,9 @@ func TestUserService_SetLayout(t *testing.T) {
 	}
 
 	users := []string{"first", "second"}
+	showNames := true
 	if err = user.SetLayout("custom",
-		&SetLayoutOptions{Users: users, VoiceActivation: false, ShowNames: true}); err != nil {
+		&SetLayoutOptions{Users: users, VoiceActivation: false, ShowNames: &showNames}); err != nil {
 		t.Errorf("UserService could not set layout, got %v", err)
 	}
 }

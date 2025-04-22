@@ -279,8 +279,9 @@ type SetLayoutOptions struct {
 	Users []string
 	// VoiceActivation determines if participants are actively replaced by voice detection.
 	VoiceActivation bool
-	// ShowNames determines if participant name overlays are shown.
-	ShowNames bool
+	// ShowNames determines if participant name overlays are shown. If not specified, defaults
+	// to true.
+	ShowNames *bool
 	// LayoutName specifies an optional name for the layout configuration.
 	LayoutName string
 	// LayoutMap contains the custom positions of participants when using custom layout.
@@ -310,10 +311,12 @@ func (u *UserService) SetLayout(layout Layout, options *SetLayoutOptions) error 
 		} else {
 			data.Set("voice_activation", "false")
 		}
-		if options.ShowNames {
-			data.Set("show_names", "true")
-		} else {
-			data.Set("show_names", "false")
+		if options.ShowNames != nil {
+			if *options.ShowNames {
+				data.Set("show_names", "true")
+			} else {
+				data.Set("show_names", "false")
+			}
 		}
 		if options.LayoutName != "" {
 			data.Set("name", options.LayoutName)
