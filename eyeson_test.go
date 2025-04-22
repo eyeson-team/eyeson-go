@@ -57,6 +57,13 @@ func testFormValues(t *testing.T, r *http.Request, values values) {
 	}
 }
 
+func testFormValuesArray(t *testing.T, r *http.Request, want url.Values) {
+	r.ParseForm()
+	if got := r.Form; !reflect.DeepEqual(got, want) {
+		t.Errorf("Request parameters: %v, want %v", got, want)
+	}
+}
+
 func TestNewClient(t *testing.T) {
 	c, err := NewClient("apiKey")
 	if err != nil {

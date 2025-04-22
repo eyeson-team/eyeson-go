@@ -303,7 +303,7 @@ func (u *UserService) SetLayout(layout Layout, options *SetLayoutOptions) error 
 	}
 	if options != nil {
 		for _, userID := range options.Users {
-			data.Set("users[]", userID)
+			data.Add("users[]", userID)
 		}
 		if options.VoiceActivation {
 			data.Set("voice_activation", "true")

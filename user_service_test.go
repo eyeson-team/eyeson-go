@@ -3,6 +3,7 @@ package eyeson
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -147,8 +148,8 @@ func TestUserService_SetLayout(t *testing.T) {
 
 	mux.HandleFunc("/rooms/token/layout", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		testFormValues(t, r, values{"layout": "custom", "users[]": "first",
-			"voice_activation": "false", "show_names": "true"})
+		testFormValuesArray(t, r, url.Values{"layout": []string{"custom"}, "users[]": []string{"first", "second"},
+			"voice_activation": []string{"false"}, "show_names": []string{"true"}})
 		fmt.Fprint(w, `{}`)
 	})
 
@@ -157,7 +158,7 @@ func TestUserService_SetLayout(t *testing.T) {
 		t.Errorf("RoomsService Join not successfull, got %v", err)
 	}
 
-	users := []string{"first"}
+	users := []string{"first", "second"}
 	if err = user.SetLayout("custom",
 		&SetLayoutOptions{Users: users, VoiceActivation: false, ShowNames: true}); err != nil {
 		t.Errorf("UserService could not set layout, got %v", err)
