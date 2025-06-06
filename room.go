@@ -123,9 +123,29 @@ type SIP struct {
 	DisplayName       string `json:"displayName"`
 }
 
+// RoomInfo
+type RoomInfo struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Ready      bool   `json:"ready"`
+	StartedAt  string `json:"started_at"`
+	Shutdown   bool   `json:"shutdown"`
+	GuestToken string `json:"guest_token"`
+}
+
 // User has information on the current participant that has joined the meeting.
 type User struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 	SIP  SIP    `json:"sip"`
+}
+
+// UserInfo
+type UserInfo struct {
+	ID     string `json:"id"`
+	RoomID string `json:"room_id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Guest  bool   `json:"guest"`
+	Online bool   `json:"online"`
 }
