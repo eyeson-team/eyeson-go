@@ -139,13 +139,3 @@ type User struct {
 	Name string `json:"name"`
 	SIP  SIP    `json:"sip"`
 }
-
-// UserInfo
-type UserInfo struct {
-	ID     string `json:"id"`
-	RoomID string `json:"room_id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	Guest  bool   `json:"guest"`
-	Online bool   `json:"online"`
-}

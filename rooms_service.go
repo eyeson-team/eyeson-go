@@ -257,7 +257,7 @@ func (srv *RoomsService) GetCurrentMeetings() (*[]RoomInfo, error) {
 	return &rooms, validateResponse(resp)
 }
 
-func (srv *RoomsService) GetRoomUsers(ID string, online *bool) (*[]UserInfo, error) {
+func (srv *RoomsService) GetRoomUsers(ID string, online *bool) (*[]Participant, error) {
 	path := "/rooms/" + ID + "/users"
 	if online != nil {
 		path += "online=" + strconv.FormatBool(*online)
@@ -267,7 +267,7 @@ func (srv *RoomsService) GetRoomUsers(ID string, online *bool) (*[]UserInfo, err
 		return nil, err
 	}
 
-	var users []UserInfo
+	var users []Participant
 	resp, err := srv.client.Do(req, &users)
 	if err != nil {
 		return nil, err
