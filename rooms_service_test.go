@@ -136,7 +136,7 @@ func TestRoomsService_GetSnapshots(t *testing.T) {
 		t.Errorf("RoomsService GetSnapshots not successfull, got %v", err)
 	}
 	if snapshots == nil || len(*snapshots) != 1 {
-    	t.Errorf("RoomsService GetSnapshots body = %v", snapshots)
+		t.Errorf("RoomsService GetSnapshots body = %v", snapshots)
 	}
 	downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
 	wantSnapshot := &Snapshot{ID: "snapshot-id", Links: Links{Download: &downloadLink}}
@@ -200,7 +200,7 @@ func TestRoomsService_GetRecordings(t *testing.T) {
 		t.Errorf("RoomsService GetRecordings not successfull, got %v", err)
 	}
 	if recordings == nil || len(*recordings) != 1 {
-    	t.Errorf("RoomsService GetRecordings body = %v", recordings)
+		t.Errorf("RoomsService GetRecordings body = %v", recordings)
 	}
 	downloadLink := "https://fs.eyeson.com/meetings/recording-id"
 	wantRecording := &Recording{ID: "recording-id", Links: Links{Download: &downloadLink}}
@@ -238,7 +238,7 @@ func TestRoomsService_GetCurrentMeetings(t *testing.T) {
 		t.Errorf("RoomsService GetCurrentMeetings not successfull, got %v", err)
 	}
 	if rooms == nil || len(*rooms) != 1 {
-    	t.Errorf("RoomsService GetCurrentMeetings body = %v", rooms)
+		t.Errorf("RoomsService GetCurrentMeetings body = %v", rooms)
 	}
 	first := &(*rooms)[0]
 	want := &RoomInfo{ID: "room-id", Name: "test", Ready: true, StartedAt: "2025-06-10T10:00:00Z", Shutdown: false, GuestToken: "abc"}
@@ -262,7 +262,7 @@ func TestRoomsService_GetRoomUsers(t *testing.T) {
 		t.Errorf("RoomsService GetRoomUsers not successfull, got %v", err)
 	}
 	if users == nil || len(*users) != 1 {
-    	t.Errorf("RoomsService GetRoomUsers body = %v", users)
+		t.Errorf("RoomsService GetRoomUsers body = %v", users)
 	}
 	first := &(*users)[0]
 	want := &Participant{ID: "user-id", RoomID: "room-id", Name: "test", Online: true}

@@ -70,7 +70,7 @@ func testQueryValues(t *testing.T, r *http.Request, values values) {
 		want.Set(k, v)
 	}
 	got := r.URL.Query()
-	if (!reflect.DeepEqual(got, want)) {
+	if !reflect.DeepEqual(got, want) {
 		t.Errorf("Request parameters: %v, want %v", got, want)
 	}
 }

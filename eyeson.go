@@ -11,12 +11,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
-	"io"
 )
 
 const (
@@ -110,34 +110,34 @@ func (c *Client) UserClient() *Client {
 
 // NewRequest prepares a request to be sent to the API.
 func (c *Client) NewRequest(method, urlStr string, data url.Values) (*http.Request, error) {
-    u := c.BaseURL.JoinPath(urlStr)
+	u := c.BaseURL.JoinPath(urlStr)
 	hasBody := method == http.MethodPost || method == http.MethodPut
 
-    var body io.Reader
+	var body io.Reader
 
-    if !hasBody && data != nil {
-        // Attach data as query parameters for GET
-        u.RawQuery = data.Encode()
-    } else if data != nil {
-        // For POST/PUT, encode data in body
-        body = strings.NewReader(data.Encode())
-    }
+	if !hasBody && data != nil {
+		// Attach data as query parameters for GET
+		u.RawQuery = data.Encode()
+	} else if data != nil {
+		// For POST/PUT, encode data in body
+		body = strings.NewReader(data.Encode())
+	}
 
-    req, err := http.NewRequest(method, u.String(), body)
-    if err != nil {
-        return nil, err
-    }
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
 
-    if hasBody {
-        req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-    }
-    req.Header.Set("Accept", "application/json")
-    if c.apiKey != "" {
-        req.Header.Set("Authorization", c.apiKey)
-    }
-    req.Header.Set("User-Agent", userAgent)
+	if hasBody {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
+	req.Header.Set("Accept", "application/json")
+	if c.apiKey != "" {
+		req.Header.Set("Authorization", c.apiKey)
+	}
+	req.Header.Set("User-Agent", userAgent)
 
-    return req, nil
+	return req, nil
 }
 
 // NewPlainRequest create a request with bytes and content-type
