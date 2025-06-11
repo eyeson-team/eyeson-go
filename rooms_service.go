@@ -258,11 +258,12 @@ func (srv *RoomsService) GetCurrentMeetings() (*[]RoomInfo, error) {
 }
 
 func (srv *RoomsService) GetRoomUsers(ID string, online *bool) (*[]Participant, error) {
-	path := "/rooms/" + ID + "/users"
+	data := url.Values{}
 	if online != nil {
-		path += "online=" + strconv.FormatBool(*online)
+		data.Set("online", strconv.FormatBool(*online))
 	}
-	req, err := srv.client.NewRequest(http.MethodGet, path, nil)
+	path := "/rooms/" + ID + "/users"
+	req, err := srv.client.NewRequest(http.MethodGet, path, data)
 	if err != nil {
 		return nil, err
 	}

@@ -138,15 +138,12 @@ func TestRoomsService_GetSnapshots(t *testing.T) {
 	if snapshots == nil || len(*snapshots) != 1 {
     	t.Errorf("RoomsService GetSnapshots body = %v", snapshots)
 	}
-	first := (*snapshots)[0]
-	if  first.ID != "snapshot-id" {
-		t.Errorf("RoomsService GetSnapshots body = %v", snapshots)
+	downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
+	wantSnapshot := &Snapshot{ID: "snapshot-id", Links: Links{Download: &downloadLink}}
+	first := &(*snapshots)[0]
+	if !reflect.DeepEqual(first, wantSnapshot) {
+		t.Errorf("RoomsService GetSnapshots body = %v, want %v", first, wantSnapshot)
 	}
-	// downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
-	// wantSnapshot := &Snapshot{ID: "snapshot-id", Links: Links{Download: &downloadLink}}
-	// if !reflect.DeepEqual((*snapshots)[0], wantSnapshot) {
-	// 	t.Errorf("RoomsService GetSnapshots body = %v, want %v", snapshots, wantSnapshot)
-	// }
 }
 
 func TestRoomsService_DeleteSnapshot(t *testing.T) {
@@ -205,15 +202,12 @@ func TestRoomsService_GetRecordings(t *testing.T) {
 	if recordings == nil || len(*recordings) != 1 {
     	t.Errorf("RoomsService GetRecordings body = %v", recordings)
 	}
-	first := (*recordings)[0]
-	if  first.ID != "recording-id" {
-		t.Errorf("RoomsService GetRecordings body = %v", recordings)
+	downloadLink := "https://fs.eyeson.com/meetings/recording-id"
+	wantRecording := &Recording{ID: "recording-id", Links: Links{Download: &downloadLink}}
+	first := &(*recordings)[0]
+	if !reflect.DeepEqual(first, wantRecording) {
+		t.Errorf("RoomsService GetRecordings body = %v, want %v", first, wantRecording)
 	}
-	// downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
-	// wantSnapshot := &Snapshot{ID: "snapshot-id", Links: Links{Download: &downloadLink}}
-	// if !reflect.DeepEqual((*snapshots)[0], wantSnapshot) {
-	// 	t.Errorf("RoomsService GetSnapshots body = %v, want %v", snapshots, wantSnapshot)
-	// }
 }
 
 func TestRoomsService_DeleteRecording(t *testing.T) {
@@ -231,3 +225,48 @@ func TestRoomsService_DeleteRecording(t *testing.T) {
 	}
 }
 
+func TestRoomsService_GetCurrentMeetings(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/rooms", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `[{"id":"room-id","name":"test","ready":true,"started_at":"2025-06-10T10:00:00Z","shutdown":false,"guest_token":"abc"}]`)
+	})
+	rooms, err := client.Rooms.GetCurrentMeetings()
+	if err != nil {
+		t.Errorf("RoomsService GetCurrentMeetings not successfull, got %v", err)
+	}
+	if rooms == nil || len(*rooms) != 1 {
+    	t.Errorf("RoomsService GetCurrentMeetings body = %v", rooms)
+	}
+	first := &(*rooms)[0]
+	want := &RoomInfo{ID: "room-id", Name: "test", Ready: true, StartedAt: "2025-06-10T10:00:00Z", Shutdown: false, GuestToken: "abc"}
+	if !reflect.DeepEqual(first, want) {
+		t.Errorf("RoomsService GetCurrentMeetings body = %v, want %v", first, want)
+	}
+}
+
+func TestRoomsService_GetRoomUsers(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/rooms/room-id/users", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testQueryValues(t, r, values{"online": "true"})
+		fmt.Fprint(w, `[{"id":"user-id","room_id":"room-id","name":"test","online":true}]`)
+	})
+	online := true
+	users, err := client.Rooms.GetRoomUsers("room-id", &online)
+	if err != nil {
+		t.Errorf("RoomsService GetRoomUsers not successfull, got %v", err)
+	}
+	if users == nil || len(*users) != 1 {
+    	t.Errorf("RoomsService GetRoomUsers body = %v", users)
+	}
+	first := &(*users)[0]
+	want := &Participant{ID: "user-id", RoomID: "room-id", Name: "test", Online: true}
+	if !reflect.DeepEqual(first, want) {
+		t.Errorf("RoomsService GetRoomUsers body = %v, want %v", first, want)
+	}
+}
