@@ -148,3 +148,86 @@ func TestRoomsService_GetSnapshots(t *testing.T) {
 	// 	t.Errorf("RoomsService GetSnapshots body = %v, want %v", snapshots, wantSnapshot)
 	// }
 }
+
+func TestRoomsService_DeleteSnapshot(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/snapshots/snapshot-id", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		w.WriteHeader(204)
+	})
+
+	err := client.Rooms.DeleteSnapshot("snapshot-id")
+	if err != nil {
+		t.Errorf("RoomsService DeleteSnapshot not successfull, got %v", err)
+	}
+}
+
+func TestRoomsService_GetRecording(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/recordings/recording-id", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{"id":"recording-id","links":{"download": "https://fs.eyeson.com/meetings/snapshot-id"}}`)
+	})
+
+	recording, err := client.Rooms.GetRecording("recording-id")
+	if err != nil {
+		t.Errorf("RoomsService GetRecording not successfull, got %v", err)
+	}
+	downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
+	want := &Recording{ID: "recording-id", Links: Links{Download: &downloadLink}}
+	if !reflect.DeepEqual(recording, want) {
+		t.Errorf("RoomsService GetRecording body = %v, want %v", recording, want)
+	}
+}
+
+func TestRoomsService_GetRecordings(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	since := "2025-06-10T10:00:00Z"
+	mux.HandleFunc("/rooms/room-id/recordings", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testQueryValues(t, r, values{"since": since})
+		fmt.Fprint(w, `[{"id":"recording-id","links":{"download": "https://fs.eyeson.com/meetings/recording-id"}}]`)
+	})
+	sinceTime, _ := time.Parse(time.RFC3339, since)
+	options := &GetRecordingsOptions{
+		Since: &sinceTime,
+	}
+	recordings, err := client.Rooms.GetRecordings("room-id", options)
+	if err != nil {
+		t.Errorf("RoomsService GetRecordings not successfull, got %v", err)
+	}
+	if recordings == nil || len(*recordings) != 1 {
+    	t.Errorf("RoomsService GetRecordings body = %v", recordings)
+	}
+	first := (*recordings)[0]
+	if  first.ID != "recording-id" {
+		t.Errorf("RoomsService GetRecordings body = %v", recordings)
+	}
+	// downloadLink := "https://fs.eyeson.com/meetings/snapshot-id"
+	// wantSnapshot := &Snapshot{ID: "snapshot-id", Links: Links{Download: &downloadLink}}
+	// if !reflect.DeepEqual((*snapshots)[0], wantSnapshot) {
+	// 	t.Errorf("RoomsService GetSnapshots body = %v, want %v", snapshots, wantSnapshot)
+	// }
+}
+
+func TestRoomsService_DeleteRecording(t *testing.T) {
+	client, mux, _, teardown := setup()
+	defer teardown()
+
+	mux.HandleFunc("/recordings/recording-id", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+		w.WriteHeader(204)
+	})
+
+	err := client.Rooms.DeleteRecording("recording-id")
+	if err != nil {
+		t.Errorf("RoomsService DeleteRecording not successfull, got %v", err)
+	}
+}
+
