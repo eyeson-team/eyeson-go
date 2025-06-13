@@ -71,6 +71,7 @@ API_KEY=... go run examples/webhook-listener.go <endpoint-url>
 ```
 
 ## Releases
+- 1.7.0 Add GetCurrentMeetings, GetRoomUsers, Recording functions
 - 1.6.2 Add audio to playback options  
 - 1.6.1 fixes layout user array
 - 1.6.0 webp+svg support, lock-meeting, snpashots
