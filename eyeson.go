@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -110,13 +111,26 @@ func (c *Client) UserClient() *Client {
 // NewRequest prepares a request to be sent to the API.
 func (c *Client) NewRequest(method, urlStr string, data url.Values) (*http.Request, error) {
 	u := c.BaseURL.JoinPath(urlStr)
+	hasBody := method == http.MethodPost || method == http.MethodPut
 
-	req, err := http.NewRequest(method, u.String(), strings.NewReader(data.Encode()))
+	var body io.Reader
+
+	if !hasBody && data != nil {
+		// Attach data as query parameters for GET
+		u.RawQuery = data.Encode()
+	} else if data != nil {
+		// For POST/PUT, encode data in body
+		body = strings.NewReader(data.Encode())
+	}
+
+	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if hasBody {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 	req.Header.Set("Accept", "application/json")
 	if c.apiKey != "" {
 		req.Header.Set("Authorization", c.apiKey)

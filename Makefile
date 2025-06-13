@@ -2,6 +2,10 @@
 test:
 	@go test
 
+.PHONY: test
+format:
+	gofmt -w .
+
 .PHONY: examples
 examples:
 	@go build -o examples/bin examples/layers_accesskey.go 

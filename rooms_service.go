@@ -126,28 +126,40 @@ func (srv *RoomsService) GetSnapshot(snapshotID string) (*Snapshot, error) {
 
 // GetSnaphostsOptions options supporting pagination and filtering.
 type GetSnaphostsOptions struct {
-	page      int
-	startedAt time.Time
+	Page      *int
+	StartedAt *time.Time
+	Since     *time.Time
+	Until     *time.Time
 }
 
 // GetSnapshots retrieves a a list of snapshots for a room.
 func (srv *RoomsService) GetSnapshots(ID string, options *GetSnaphostsOptions) (*[]Snapshot, error) {
 	data := url.Values{}
 	if options != nil {
-		data.Set("page", strconv.Itoa(options.page))
-		data.Set("started_at", options.startedAt.Format(time.RFC3339))
+		if options.Page != nil {
+			data.Set("page", strconv.Itoa(*options.Page))
+		}
+		if options.StartedAt != nil {
+			data.Set("started_at", options.StartedAt.Format(time.RFC3339))
+		}
+		if options.Since != nil {
+			data.Set("since", options.Since.Format(time.RFC3339))
+		}
+		if options.Until != nil {
+			data.Set("until", options.Until.Format(time.RFC3339))
+		}
 	}
 	path := "/rooms/" + ID + "/snapshots"
 	req, err := srv.client.NewRequest(http.MethodGet, path, data)
 	if err != nil {
 		return nil, err
 	}
-	var snapshot []Snapshot
-	resp, err := srv.client.Do(req, &snapshot)
+	var snapshots []Snapshot
+	resp, err := srv.client.Do(req, &snapshots)
 	if err != nil {
 		return nil, err
 	}
-	return &snapshot, validateResponse(resp)
+	return &snapshots, validateResponse(resp)
 }
 
 // DeleteSnapshot deletes a snapshot.
@@ -162,4 +174,104 @@ func (u *RoomsService) DeleteSnapshot(snapshotID string) error {
 		return err
 	}
 	return validateResponse(resp)
+}
+
+// GetRecording retrieves a recording.
+func (srv *RoomsService) GetRecording(recordingID string) (*Recording, error) {
+	path := "/recordings/" + recordingID
+	req, err := srv.client.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	var recording Recording
+	resp, err := srv.client.Do(req, &recording)
+	if err != nil {
+		return nil, err
+	}
+	return &recording, validateResponse(resp)
+}
+
+// GetRecordingsOptions options supporting pagination and filtering.
+type GetRecordingsOptions struct {
+	Page      *int
+	StartedAt *time.Time
+	Since     *time.Time
+	Until     *time.Time
+}
+
+// GetSnapshots retrieves a a list of recordings for a room.
+func (srv *RoomsService) GetRecordings(ID string, options *GetRecordingsOptions) (*[]Recording, error) {
+	data := url.Values{}
+	if options != nil {
+		if options.Page != nil {
+			data.Set("page", strconv.Itoa(*options.Page))
+		}
+		if options.StartedAt != nil {
+			data.Set("started_at", options.StartedAt.Format(time.RFC3339))
+		}
+		if options.Since != nil {
+			data.Set("since", options.Since.Format(time.RFC3339))
+		}
+		if options.Until != nil {
+			data.Set("until", options.Until.Format(time.RFC3339))
+		}
+	}
+	path := "/rooms/" + ID + "/recordings"
+	req, err := srv.client.NewRequest(http.MethodGet, path, data)
+	if err != nil {
+		return nil, err
+	}
+	var recordings []Recording
+	resp, err := srv.client.Do(req, &recordings)
+	if err != nil {
+		return nil, err
+	}
+	return &recordings, validateResponse(resp)
+}
+
+// DeleteRecording deletes a recording.
+func (u *RoomsService) DeleteRecording(recordingID string) error {
+	path := "/recordings/" + recordingID
+	req, err := u.client.NewRequest(http.MethodDelete, path, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := u.client.Do(req, nil)
+	if err != nil {
+		return err
+	}
+	return validateResponse(resp)
+}
+
+func (srv *RoomsService) GetCurrentMeetings() (*[]RoomInfo, error) {
+	req, err := srv.client.NewRequest(http.MethodGet, "/rooms", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var rooms []RoomInfo
+	resp, err := srv.client.Do(req, &rooms)
+	if err != nil {
+		return nil, err
+	}
+	return &rooms, validateResponse(resp)
+}
+
+func (srv *RoomsService) GetRoomUsers(ID string, online *bool) (*[]Participant, error) {
+	data := url.Values{}
+	if online != nil {
+		data.Set("online", strconv.FormatBool(*online))
+	}
+	path := "/rooms/" + ID + "/users"
+	req, err := srv.client.NewRequest(http.MethodGet, path, data)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []Participant
+	resp, err := srv.client.Do(req, &users)
+	if err != nil {
+		return nil, err
+	}
+	return &users, validateResponse(resp)
 }
