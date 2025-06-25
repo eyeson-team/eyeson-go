@@ -31,11 +31,12 @@ type Client struct {
 	apiKey  string
 	BaseURL *url.URL
 
-	client       *http.Client
-	Rooms        *RoomsService
-	Webhook      *WebhookService
-	Observer     *ObserverService
-	customCAFile string
+	client             *http.Client
+	Rooms              *RoomsService
+	Webhook            *WebhookService
+	Observer           *ObserverService
+	customCAFile       string
+	insecureSkipVerify bool
 }
 
 type service struct {
@@ -53,6 +54,12 @@ func WithCustomCAFile(customCAFile string) ClientOption {
 	}
 }
 
+func WithInsecureSkipVerify() ClientOption {
+	return func(c *Client) {
+		c.insecureSkipVerify = true
+	}
+}
+
 // WithCustomEndpoint Set an endpoint which differs from the official
 // api endpoint.
 func WithCustomEndpoint(endpoint string) ClientOption {
@@ -64,7 +71,8 @@ func WithCustomEndpoint(endpoint string) ClientOption {
 // NewClient creates a new client in order to send requests to the eyeson API.
 func NewClient(key string, options ...ClientOption) (*Client, error) {
 	baseURL, _ := url.Parse(endpoint)
-	c := &Client{apiKey: key, BaseURL: baseURL, client: http.DefaultClient}
+	c := &Client{apiKey: key, BaseURL: baseURL,
+		client: http.DefaultClient, insecureSkipVerify: false}
 
 	for _, opt := range options {
 		opt(c)
@@ -72,7 +80,6 @@ func NewClient(key string, options ...ClientOption) (*Client, error) {
 
 	// load customCAFile here if set
 	if len(c.customCAFile) > 0 {
-
 		// Load CA cert
 		caCert, err := os.ReadFile(c.customCAFile)
 		if err != nil {
@@ -83,7 +90,23 @@ func NewClient(key string, options ...ClientOption) (*Client, error) {
 			return nil, fmt.Errorf("Failed to append CA")
 		}
 		tlsConfig := &tls.Config{
-			RootCAs: caCertPool,
+			RootCAs:            caCertPool,
+			InsecureSkipVerify: c.insecureSkipVerify,
+		}
+		tr := &http.Transport{
+			MaxIdleConns:       10,
+			IdleConnTimeout:    5 * time.Second,
+			DisableCompression: true,
+			TLSClientConfig:    tlsConfig,
+		}
+		c.client = &http.Client{
+			Transport: tr,
+		}
+	}
+
+	if c.insecureSkipVerify {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: c.insecureSkipVerify,
 		}
 		tr := &http.Transport{
 			MaxIdleConns:       10,
